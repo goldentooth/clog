@@ -1,0 +1,316 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1591pt" height="514pt" viewBox="0.00 0.00 1590.53 514.00">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 510)">
+<title>G</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-510 1586.53,-510 1586.53,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_module.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="8,-46 8,-413 1574.53,-413 1574.53,-46 8,-46"/>
+<text text-anchor="middle" x="791.27" y="-396.4" font-family="sans-serif" font-size="14.00">module.dynamic_dns</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_module.github-oidc</title>
+<polygon fill="none" stroke="black" points="333.7,-421 333.7,-498 1553.92,-498 1553.92,-421 333.7,-421"/>
+<text text-anchor="middle" x="943.81" y="-481.4" font-family="sans-serif" font-size="14.00">module.github-oidc</text>
+</g>
+<!-- aws_s3_bucket.cluster -->
+<g id="node1" class="node">
+<title>aws_s3_bucket.cluster</title>
+<polygon fill="none" stroke="black" points="1496.17,-36 1353.81,-36 1353.81,0 1496.17,0 1496.17,-36"/>
+<text text-anchor="middle" x="1424.99" y="-13.8" font-family="sans-serif" font-size="14.00">aws_s3_bucket.cluster</text>
+</g>
+<!-- module.dynamic_dns.data.aws_iam_policy_document.api_gateway_assume -->
+<g id="node2" class="node">
+<title>module.dynamic_dns.data.aws_iam_policy_document.api_gateway_assume</title>
+<polygon fill="none" stroke="black" points="1247.44,-198 928.2,-198 928.2,-162 1247.44,-162 1247.44,-198"/>
+<text text-anchor="middle" x="1087.82" y="-175.8" font-family="sans-serif" font-size="14.00">data.aws_iam_policy_document.api_gateway_assume</text>
+</g>
+<!-- module.dynamic_dns.data.aws_iam_policy_document.dynamic_dns -->
+<g id="node3" class="node">
+<title>module.dynamic_dns.data.aws_iam_policy_document.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="892.2,-360 617.26,-360 617.26,-324 892.2,-324 892.2,-360"/>
+<text text-anchor="middle" x="754.73" y="-337.8" font-family="sans-serif" font-size="14.00">data.aws_iam_policy_document.dynamic_dns</text>
+</g>
+<!-- module.dynamic_dns.aws_ssm_parameter.credentials -->
+<g id="node22" class="node">
+<title>module.dynamic_dns.aws_ssm_parameter.credentials</title>
+<polygon fill="none" stroke="black" points="558.31,-311 364.66,-311 364.66,-275 558.31,-275 558.31,-311"/>
+<text text-anchor="middle" x="461.48" y="-288.8" font-family="sans-serif" font-size="14.00">aws_ssm_parameter.credentials</text>
+</g>
+<!-- module.dynamic_dns.data.aws_iam_policy_document.dynamic_dns&#45;&gt;module.dynamic_dns.aws_ssm_parameter.credentials -->
+<g id="edge1" class="edge">
+<title>module.dynamic_dns.data.aws_iam_policy_document.dynamic_dns-&gt;module.dynamic_dns.aws_ssm_parameter.credentials</title>
+<path fill="none" stroke="black" d="M644.04,-323.55C619.81,-319.47 594.18,-315.16 570.04,-311.1"/>
+<polygon fill="black" stroke="black" points="570.63,-307.65 560.19,-309.44 569.47,-314.55 570.63,-307.65"/>
+</g>
+<!-- module.dynamic_dns.data.aws_iam_policy_document.lambda_assume -->
+<g id="node4" class="node">
+<title>module.dynamic_dns.data.aws_iam_policy_document.lambda_assume</title>
+<polygon fill="none" stroke="black" points="305.7,-375 16,-375 16,-339 305.7,-339 305.7,-375"/>
+<text text-anchor="middle" x="160.85" y="-352.8" font-family="sans-serif" font-size="14.00">data.aws_iam_policy_document.lambda_assume</text>
+</g>
+<!-- module.dynamic_dns.data.aws_kms_key.ssm_default -->
+<g id="node5" class="node">
+<title>module.dynamic_dns.data.aws_kms_key.ssm_default</title>
+<polygon fill="none" stroke="black" points="257.5,-311 64.2,-311 64.2,-275 257.5,-275 257.5,-311"/>
+<text text-anchor="middle" x="160.85" y="-288.8" font-family="sans-serif" font-size="14.00">data.aws_kms_key.ssm_default</text>
+</g>
+<!-- module.dynamic_dns.aws_acm_certificate.dynamic_dns -->
+<g id="node6" class="node">
+<title>module.dynamic_dns.aws_acm_certificate.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="265.45,-90 56.25,-90 56.25,-54 265.45,-54 265.45,-90"/>
+<text text-anchor="middle" x="160.85" y="-67.8" font-family="sans-serif" font-size="14.00">aws_acm_certificate.dynamic_dns</text>
+</g>
+<!-- module.dynamic_dns.aws_acm_certificate_validation.dynamic_dns -->
+<g id="node7" class="node">
+<title>module.dynamic_dns.aws_acm_certificate_validation.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="890.82,-90 618.64,-90 618.64,-54 890.82,-54 890.82,-90"/>
+<text text-anchor="middle" x="754.73" y="-67.8" font-family="sans-serif" font-size="14.00">aws_acm_certificate_validation.dynamic_dns</text>
+</g>
+<!-- module.dynamic_dns.aws_route53_record.acm_validation -->
+<g id="node20" class="node">
+<title>module.dynamic_dns.aws_route53_record.acm_validation</title>
+<polygon fill="none" stroke="black" points="571.53,-90 351.44,-90 351.44,-54 571.53,-54 571.53,-90"/>
+<text text-anchor="middle" x="461.48" y="-67.8" font-family="sans-serif" font-size="14.00">aws_route53_record.acm_validation</text>
+</g>
+<!-- module.dynamic_dns.aws_acm_certificate_validation.dynamic_dns&#45;&gt;module.dynamic_dns.aws_route53_record.acm_validation -->
+<g id="edge2" class="edge">
+<title>module.dynamic_dns.aws_acm_certificate_validation.dynamic_dns-&gt;module.dynamic_dns.aws_route53_record.acm_validation</title>
+<path fill="none" stroke="black" d="M618.34,-72C606.64,-72 594.85,-72 583.28,-72"/>
+<polygon fill="black" stroke="black" points="583.31,-68.5 573.31,-72 583.31,-75.5 583.31,-68.5"/>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_api.dynamic_dns -->
+<g id="node8" class="node">
+<title>module.dynamic_dns.aws_apigatewayv2_api.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="867.12,-252 642.34,-252 642.34,-216 867.12,-216 867.12,-252"/>
+<text text-anchor="middle" x="754.73" y="-229.8" font-family="sans-serif" font-size="14.00">aws_apigatewayv2_api.dynamic_dns</text>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_api_mapping.dynamic_dns -->
+<g id="node9" class="node">
+<title>module.dynamic_dns.aws_apigatewayv2_api_mapping.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="1565.37,-144 1284.6,-144 1284.6,-108 1565.37,-108 1565.37,-144"/>
+<text text-anchor="middle" x="1424.99" y="-121.8" font-family="sans-serif" font-size="14.00">aws_apigatewayv2_api_mapping.dynamic_dns</text>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_domain_name.dynamic_dns -->
+<g id="node10" class="node">
+<title>module.dynamic_dns.aws_apigatewayv2_domain_name.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="1231.31,-90 944.33,-90 944.33,-54 1231.31,-54 1231.31,-90"/>
+<text text-anchor="middle" x="1087.82" y="-67.8" font-family="sans-serif" font-size="14.00">aws_apigatewayv2_domain_name.dynamic_dns</text>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_api_mapping.dynamic_dns&#45;&gt;module.dynamic_dns.aws_apigatewayv2_domain_name.dynamic_dns -->
+<g id="edge3" class="edge">
+<title>module.dynamic_dns.aws_apigatewayv2_api_mapping.dynamic_dns-&gt;module.dynamic_dns.aws_apigatewayv2_domain_name.dynamic_dns</title>
+<path fill="none" stroke="black" d="M1309.58,-107.57C1279.09,-102.66 1245.99,-97.32 1214.91,-92.32"/>
+<polygon fill="black" stroke="black" points="1215.49,-88.86 1205.06,-90.73 1214.38,-95.77 1215.49,-88.86"/>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_stage.default -->
+<g id="node13" class="node">
+<title>module.dynamic_dns.aws_apigatewayv2_stage.default</title>
+<polygon fill="none" stroke="black" points="1188.15,-144 987.49,-144 987.49,-108 1188.15,-108 1188.15,-144"/>
+<text text-anchor="middle" x="1087.82" y="-121.8" font-family="sans-serif" font-size="14.00">aws_apigatewayv2_stage.default</text>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_api_mapping.dynamic_dns&#45;&gt;module.dynamic_dns.aws_apigatewayv2_stage.default -->
+<g id="edge4" class="edge">
+<title>module.dynamic_dns.aws_apigatewayv2_api_mapping.dynamic_dns-&gt;module.dynamic_dns.aws_apigatewayv2_stage.default</title>
+<path fill="none" stroke="black" d="M1284.27,-126C1256.14,-126 1226.93,-126 1199.93,-126"/>
+<polygon fill="black" stroke="black" points="1200.02,-122.5 1190.02,-126 1200.02,-129.5 1200.02,-122.5"/>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_domain_name.dynamic_dns&#45;&gt;module.dynamic_dns.aws_acm_certificate_validation.dynamic_dns -->
+<g id="edge5" class="edge">
+<title>module.dynamic_dns.aws_apigatewayv2_domain_name.dynamic_dns-&gt;module.dynamic_dns.aws_acm_certificate_validation.dynamic_dns</title>
+<path fill="none" stroke="black" d="M944,-72C930.33,-72 916.45,-72 902.74,-72"/>
+<polygon fill="black" stroke="black" points="902.78,-68.5 892.78,-72 902.78,-75.5 902.78,-68.5"/>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_integration.dynamic_dns -->
+<g id="node11" class="node">
+<title>module.dynamic_dns.aws_apigatewayv2_integration.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="1221.98,-252 953.66,-252 953.66,-216 1221.98,-216 1221.98,-252"/>
+<text text-anchor="middle" x="1087.82" y="-229.8" font-family="sans-serif" font-size="14.00">aws_apigatewayv2_integration.dynamic_dns</text>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_integration.dynamic_dns&#45;&gt;module.dynamic_dns.aws_apigatewayv2_api.dynamic_dns -->
+<g id="edge6" class="edge">
+<title>module.dynamic_dns.aws_apigatewayv2_integration.dynamic_dns-&gt;module.dynamic_dns.aws_apigatewayv2_api.dynamic_dns</title>
+<path fill="none" stroke="black" d="M953.58,-234C928.92,-234 903.26,-234 878.91,-234"/>
+<polygon fill="black" stroke="black" points="878.96,-230.5 868.96,-234 878.96,-237.5 878.96,-230.5"/>
+</g>
+<!-- module.dynamic_dns.aws_lambda_function.dynamic_dns -->
+<g id="node18" class="node">
+<title>module.dynamic_dns.aws_lambda_function.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="863.62,-306 645.83,-306 645.83,-270 863.62,-270 863.62,-306"/>
+<text text-anchor="middle" x="754.73" y="-283.8" font-family="sans-serif" font-size="14.00">aws_lambda_function.dynamic_dns</text>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_integration.dynamic_dns&#45;&gt;module.dynamic_dns.aws_lambda_function.dynamic_dns -->
+<g id="edge7" class="edge">
+<title>module.dynamic_dns.aws_apigatewayv2_integration.dynamic_dns-&gt;module.dynamic_dns.aws_lambda_function.dynamic_dns</title>
+<path fill="none" stroke="black" d="M973.8,-252.43C942.05,-257.61 907.42,-263.26 875.29,-268.5"/>
+<polygon fill="black" stroke="black" points="874.84,-265.03 865.54,-270.09 875.97,-271.94 874.84,-265.03"/>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_route.dynamic_dns -->
+<g id="node12" class="node">
+<title>module.dynamic_dns.aws_apigatewayv2_route.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="1543.21,-252 1306.77,-252 1306.77,-216 1543.21,-216 1543.21,-252"/>
+<text text-anchor="middle" x="1424.99" y="-229.8" font-family="sans-serif" font-size="14.00">aws_apigatewayv2_route.dynamic_dns</text>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_route.dynamic_dns&#45;&gt;module.dynamic_dns.aws_apigatewayv2_integration.dynamic_dns -->
+<g id="edge8" class="edge">
+<title>module.dynamic_dns.aws_apigatewayv2_route.dynamic_dns-&gt;module.dynamic_dns.aws_apigatewayv2_integration.dynamic_dns</title>
+<path fill="none" stroke="black" d="M1306.29,-234C1282.84,-234 1257.96,-234 1233.72,-234"/>
+<polygon fill="black" stroke="black" points="1233.78,-230.5 1223.78,-234 1233.78,-237.5 1233.78,-230.5"/>
+</g>
+<!-- module.dynamic_dns.aws_apigatewayv2_stage.default&#45;&gt;module.dynamic_dns.aws_apigatewayv2_api.dynamic_dns -->
+<g id="edge9" class="edge">
+<title>module.dynamic_dns.aws_apigatewayv2_stage.default-&gt;module.dynamic_dns.aws_apigatewayv2_api.dynamic_dns</title>
+<path fill="none" stroke="black" d="M987.26,-138.7C967.46,-142.41 946.99,-147.11 928.2,-153 882,-167.49 832.25,-191.88 798.12,-210.12"/>
+<polygon fill="black" stroke="black" points="796.51,-207.02 789.37,-214.85 799.84,-213.17 796.51,-207.02"/>
+</g>
+<!-- module.dynamic_dns.aws_iam_policy.dynamic_dns -->
+<g id="node14" class="node">
+<title>module.dynamic_dns.aws_iam_policy.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="1180.78,-360 994.86,-360 994.86,-324 1180.78,-324 1180.78,-360"/>
+<text text-anchor="middle" x="1087.82" y="-337.8" font-family="sans-serif" font-size="14.00">aws_iam_policy.dynamic_dns</text>
+</g>
+<!-- module.dynamic_dns.aws_iam_policy.dynamic_dns&#45;&gt;module.dynamic_dns.data.aws_iam_policy_document.dynamic_dns -->
+<g id="edge10" class="edge">
+<title>module.dynamic_dns.aws_iam_policy.dynamic_dns-&gt;module.dynamic_dns.data.aws_iam_policy_document.dynamic_dns</title>
+<path fill="none" stroke="black" d="M994.59,-342C966.47,-342 934.82,-342 903.97,-342"/>
+<polygon fill="black" stroke="black" points="904.17,-338.5 894.17,-342 904.17,-345.5 904.17,-338.5"/>
+</g>
+<!-- module.dynamic_dns.aws_iam_role.dynamic_dns_lambda -->
+<g id="node15" class="node">
+<title>module.dynamic_dns.aws_iam_role.dynamic_dns_lambda</title>
+<polygon fill="none" stroke="black" points="571.93,-375 351.04,-375 351.04,-339 571.93,-339 571.93,-375"/>
+<text text-anchor="middle" x="461.48" y="-352.8" font-family="sans-serif" font-size="14.00">aws_iam_role.dynamic_dns_lambda</text>
+</g>
+<!-- module.dynamic_dns.aws_iam_role.dynamic_dns_lambda&#45;&gt;module.dynamic_dns.data.aws_iam_policy_document.lambda_assume -->
+<g id="edge11" class="edge">
+<title>module.dynamic_dns.aws_iam_role.dynamic_dns_lambda-&gt;module.dynamic_dns.data.aws_iam_policy_document.lambda_assume</title>
+<path fill="none" stroke="black" d="M350.56,-357C339.7,-357 328.55,-357 317.36,-357"/>
+<polygon fill="black" stroke="black" points="317.67,-353.5 307.67,-357 317.67,-360.5 317.67,-353.5"/>
+</g>
+<!-- module.dynamic_dns.aws_iam_role.lambda_assume_api_gateway -->
+<g id="node16" class="node">
+<title>module.dynamic_dns.aws_iam_role.lambda_assume_api_gateway</title>
+<polygon fill="none" stroke="black" points="1557.59,-198 1292.39,-198 1292.39,-162 1557.59,-162 1557.59,-198"/>
+<text text-anchor="middle" x="1424.99" y="-175.8" font-family="sans-serif" font-size="14.00">aws_iam_role.lambda_assume_api_gateway</text>
+</g>
+<!-- module.dynamic_dns.aws_iam_role.lambda_assume_api_gateway&#45;&gt;module.dynamic_dns.data.aws_iam_policy_document.api_gateway_assume -->
+<g id="edge12" class="edge">
+<title>module.dynamic_dns.aws_iam_role.lambda_assume_api_gateway-&gt;module.dynamic_dns.data.aws_iam_policy_document.api_gateway_assume</title>
+<path fill="none" stroke="black" d="M1292,-180C1281.26,-180 1270.31,-180 1259.35,-180"/>
+<polygon fill="black" stroke="black" points="1259.44,-176.5 1249.44,-180 1259.44,-183.5 1259.44,-176.5"/>
+</g>
+<!-- module.dynamic_dns.aws_iam_role_policy_attachment.dynamic_dns -->
+<g id="node17" class="node">
+<title>module.dynamic_dns.aws_iam_role_policy_attachment.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="1566.53,-370 1283.44,-370 1283.44,-334 1566.53,-334 1566.53,-370"/>
+<text text-anchor="middle" x="1424.99" y="-347.8" font-family="sans-serif" font-size="14.00">aws_iam_role_policy_attachment.dynamic_dns</text>
+</g>
+<!-- module.dynamic_dns.aws_iam_role_policy_attachment.dynamic_dns&#45;&gt;module.dynamic_dns.aws_iam_policy.dynamic_dns -->
+<g id="edge13" class="edge">
+<title>module.dynamic_dns.aws_iam_role_policy_attachment.dynamic_dns-&gt;module.dynamic_dns.aws_iam_policy.dynamic_dns</title>
+<path fill="none" stroke="black" d="M1283.3,-347.8C1252.78,-346.89 1221.03,-345.94 1192.26,-345.09"/>
+<polygon fill="black" stroke="black" points="1192.58,-341.59 1182.48,-344.79 1192.37,-348.59 1192.58,-341.59"/>
+</g>
+<!-- module.dynamic_dns.aws_iam_role_policy_attachment.dynamic_dns&#45;&gt;module.dynamic_dns.aws_iam_role.dynamic_dns_lambda -->
+<g id="edge14" class="edge">
+<title>module.dynamic_dns.aws_iam_role_policy_attachment.dynamic_dns-&gt;module.dynamic_dns.aws_iam_role.dynamic_dns_lambda</title>
+<path fill="none" stroke="black" d="M1283.38,-366.77C1271.24,-367.67 1259.13,-368.44 1247.44,-369 967.68,-382.44 897.13,-379.83 617.26,-369 606.35,-368.58 595.02,-367.99 583.68,-367.3"/>
+<polygon fill="black" stroke="black" points="584.05,-363.81 573.85,-366.67 583.61,-370.8 584.05,-363.81"/>
+</g>
+<!-- module.dynamic_dns.aws_lambda_function.dynamic_dns&#45;&gt;module.dynamic_dns.aws_iam_role.dynamic_dns_lambda -->
+<g id="edge15" class="edge">
+<title>module.dynamic_dns.aws_lambda_function.dynamic_dns-&gt;module.dynamic_dns.aws_iam_role.dynamic_dns_lambda</title>
+<path fill="none" stroke="black" d="M655.9,-306.5C642.87,-309.21 629.72,-312.08 617.26,-315 591.17,-321.11 562.81,-328.57 537.59,-335.49"/>
+<polygon fill="black" stroke="black" points="536.78,-332.08 528.07,-338.12 538.64,-338.83 536.78,-332.08"/>
+</g>
+<!-- module.dynamic_dns.aws_lambda_function.dynamic_dns&#45;&gt;module.dynamic_dns.aws_ssm_parameter.credentials -->
+<g id="edge16" class="edge">
+<title>module.dynamic_dns.aws_lambda_function.dynamic_dns-&gt;module.dynamic_dns.aws_ssm_parameter.credentials</title>
+<path fill="none" stroke="black" d="M645.69,-289.85C620.84,-290.28 594.43,-290.73 569.62,-291.16"/>
+<polygon fill="black" stroke="black" points="569.8,-287.66 559.86,-291.33 569.92,-294.66 569.8,-287.66"/>
+</g>
+<!-- module.dynamic_dns.aws_lambda_permission.allow_apig -->
+<g id="node19" class="node">
+<title>module.dynamic_dns.aws_lambda_permission.allow_apig</title>
+<polygon fill="none" stroke="black" points="1197.88,-306 977.76,-306 977.76,-270 1197.88,-270 1197.88,-306"/>
+<text text-anchor="middle" x="1087.82" y="-283.8" font-family="sans-serif" font-size="14.00">aws_lambda_permission.allow_apig</text>
+</g>
+<!-- module.dynamic_dns.aws_lambda_permission.allow_apig&#45;&gt;module.dynamic_dns.aws_apigatewayv2_api.dynamic_dns -->
+<g id="edge17" class="edge">
+<title>module.dynamic_dns.aws_lambda_permission.allow_apig-&gt;module.dynamic_dns.aws_apigatewayv2_api.dynamic_dns</title>
+<path fill="none" stroke="black" d="M977.49,-270.17C945.9,-265.02 911.21,-259.36 878.84,-254.08"/>
+<polygon fill="black" stroke="black" points="879.42,-250.63 868.99,-252.47 878.29,-257.54 879.42,-250.63"/>
+</g>
+<!-- module.dynamic_dns.aws_lambda_permission.allow_apig&#45;&gt;module.dynamic_dns.aws_lambda_function.dynamic_dns -->
+<g id="edge18" class="edge">
+<title>module.dynamic_dns.aws_lambda_permission.allow_apig-&gt;module.dynamic_dns.aws_lambda_function.dynamic_dns</title>
+<path fill="none" stroke="black" d="M977.49,-288C944.74,-288 908.67,-288 875.3,-288"/>
+<polygon fill="black" stroke="black" points="875.61,-284.5 865.61,-288 875.61,-291.5 875.61,-284.5"/>
+</g>
+<!-- module.dynamic_dns.aws_route53_record.acm_validation&#45;&gt;module.dynamic_dns.aws_acm_certificate.dynamic_dns -->
+<g id="edge19" class="edge">
+<title>module.dynamic_dns.aws_route53_record.acm_validation-&gt;module.dynamic_dns.aws_acm_certificate.dynamic_dns</title>
+<path fill="none" stroke="black" d="M350.98,-72C326.98,-72 301.5,-72 277.28,-72"/>
+<polygon fill="black" stroke="black" points="277.39,-68.5 267.39,-72 277.39,-75.5 277.39,-68.5"/>
+</g>
+<!-- module.dynamic_dns.aws_route53_record.dynamic_dns -->
+<g id="node21" class="node">
+<title>module.dynamic_dns.aws_route53_record.dynamic_dns</title>
+<polygon fill="none" stroke="black" points="1529.21,-90 1320.76,-90 1320.76,-54 1529.21,-54 1529.21,-90"/>
+<text text-anchor="middle" x="1424.99" y="-67.8" font-family="sans-serif" font-size="14.00">aws_route53_record.dynamic_dns</text>
+</g>
+<!-- module.dynamic_dns.aws_route53_record.dynamic_dns&#45;&gt;module.dynamic_dns.aws_apigatewayv2_domain_name.dynamic_dns -->
+<g id="edge20" class="edge">
+<title>module.dynamic_dns.aws_route53_record.dynamic_dns-&gt;module.dynamic_dns.aws_apigatewayv2_domain_name.dynamic_dns</title>
+<path fill="none" stroke="black" d="M1320.69,-72C1296.03,-72 1269.19,-72 1242.8,-72"/>
+<polygon fill="black" stroke="black" points="1243.04,-68.5 1233.04,-72 1243.04,-75.5 1243.04,-68.5"/>
+</g>
+<!-- module.dynamic_dns.aws_ssm_parameter.credentials&#45;&gt;module.dynamic_dns.data.aws_kms_key.ssm_default -->
+<g id="edge21" class="edge">
+<title>module.dynamic_dns.aws_ssm_parameter.credentials-&gt;module.dynamic_dns.data.aws_kms_key.ssm_default</title>
+<path fill="none" stroke="black" d="M364.35,-293C333.98,-293 300.23,-293 269.13,-293"/>
+<polygon fill="black" stroke="black" points="269.32,-289.5 259.32,-293 269.32,-296.5 269.32,-289.5"/>
+</g>
+<!-- module.github&#45;oidc.data.aws_iam_policy_document.this -->
+<g id="node23" class="node">
+<title>module.github-oidc.data.aws_iam_policy_document.this</title>
+<polygon fill="none" stroke="black" points="864.98,-465 644.47,-465 644.47,-429 864.98,-429 864.98,-465"/>
+<text text-anchor="middle" x="754.73" y="-442.8" font-family="sans-serif" font-size="14.00">data.aws_iam_policy_document.this</text>
+</g>
+<!-- module.github&#45;oidc.aws_iam_openid_connect_provider.this -->
+<g id="node24" class="node">
+<title>module.github-oidc.aws_iam_openid_connect_provider.this</title>
+<polygon fill="none" stroke="black" points="581.26,-465 341.7,-465 341.7,-429 581.26,-429 581.26,-465"/>
+<text text-anchor="middle" x="461.48" y="-442.8" font-family="sans-serif" font-size="14.00">aws_iam_openid_connect_provider.this</text>
+</g>
+<!-- module.github&#45;oidc.data.aws_iam_policy_document.this&#45;&gt;module.github&#45;oidc.aws_iam_openid_connect_provider.this -->
+<g id="edge22" class="edge">
+<title>module.github-oidc.data.aws_iam_policy_document.this-&gt;module.github-oidc.aws_iam_openid_connect_provider.this</title>
+<path fill="none" stroke="black" d="M644.04,-447C627.24,-447 609.76,-447 592.57,-447"/>
+<polygon fill="black" stroke="black" points="592.84,-443.5 582.84,-447 592.84,-450.5 592.84,-443.5"/>
+</g>
+<!-- module.github&#45;oidc.aws_iam_role.this -->
+<g id="node25" class="node">
+<title>module.github-oidc.aws_iam_role.this</title>
+<polygon fill="none" stroke="black" points="1146.95,-465 1028.69,-465 1028.69,-429 1146.95,-429 1146.95,-465"/>
+<text text-anchor="middle" x="1087.82" y="-442.8" font-family="sans-serif" font-size="14.00">aws_iam_role.this</text>
+</g>
+<!-- module.github&#45;oidc.aws_iam_role.this&#45;&gt;module.github&#45;oidc.data.aws_iam_policy_document.this -->
+<g id="edge23" class="edge">
+<title>module.github-oidc.aws_iam_role.this-&gt;module.github-oidc.data.aws_iam_policy_document.this</title>
+<path fill="none" stroke="black" d="M1028.39,-447C986.45,-447 928.43,-447 876.69,-447"/>
+<polygon fill="black" stroke="black" points="876.93,-443.5 866.93,-447 876.93,-450.5 876.93,-443.5"/>
+</g>
+<!-- module.github&#45;oidc.aws_iam_role_policy_attachment.attach -->
+<g id="node26" class="node">
+<title>module.github-oidc.aws_iam_role_policy_attachment.attach</title>
+<polygon fill="none" stroke="black" points="1545.92,-465 1304.06,-465 1304.06,-429 1545.92,-429 1545.92,-465"/>
+<text text-anchor="middle" x="1424.99" y="-442.8" font-family="sans-serif" font-size="14.00">aws_iam_role_policy_attachment.attach</text>
+</g>
+<!-- module.github&#45;oidc.aws_iam_role_policy_attachment.attach&#45;&gt;module.github&#45;oidc.aws_iam_role.this -->
+<g id="edge24" class="edge">
+<title>module.github-oidc.aws_iam_role_policy_attachment.attach-&gt;module.github-oidc.aws_iam_role.this</title>
+<path fill="none" stroke="black" d="M1303.93,-447C1255.17,-447 1200.56,-447 1158.56,-447"/>
+<polygon fill="black" stroke="black" points="1158.58,-443.5 1148.58,-447 1158.58,-450.5 1158.58,-443.5"/>
+</g>
+</g>
+</svg>

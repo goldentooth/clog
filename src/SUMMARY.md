@@ -32,6 +32,8 @@
 - [Fixing MetalLB](./030_fixing_metallb.md)
 - [NFS Mounts](./031_nfs_mounts.md)
 - [Slurm](./032_slurm.md)
+- [Terraform](./033_terraform.md)
+- [Dynamic DNS](./034_dynamic_dns.md)
 
 <!--
   Slurm apps
