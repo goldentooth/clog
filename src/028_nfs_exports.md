@@ -29,4 +29,12 @@ Adding that, an export (``), and the following playbook seems to do things:
     - { role: 'geerlingguy.nfs' }
 ```
 
+This appears to work:
+
+```bash
+$ showmount -e allyrion
+Exports list on allyrion:
+/mnt/usb1                           *
+```
+
 We'll return to this later and find out if it _actually_ works.
