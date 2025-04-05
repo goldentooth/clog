@@ -17,6 +17,8 @@ I've been trying to get computers to do what I want, with mixed success, since t
 
 I consider myself a DevOps Engineer. I consider DevOps a methodology _and_ a role, in that I try to work in whatever capacity I can to improve the product delivery lifecycle and shorten delivery lead time. I generally do the work that is referred to as "DevOps" or "platform engineering" or "site reliability engineering", but I try to emphasize the theoretical aspects, e.g. Lean Management, sytems thinking, etc. That's not to say that I'm an expert, but just that I try to keep the technical details grounded in the philosophical justifications, the big picture.
 
+**Update (2025-04-05)**: At present I consider myself more of a platform engineer. I'm trying to move into an MLOps space, though, and from there into High-Performance Computing. I also would like to eventually shift into deep tech research and possibly get my PhD in mathematics or computer science.
+
 ## Background
 
 ![VMWare Workstation](./images/001_vmware.jpg)
