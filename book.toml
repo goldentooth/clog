@@ -1,0 +1,16 @@
+[book]
+authors = ["Nathan Douglas"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Kubernetes, the _Excruciating_ Way"
+description = "A low-level, step-by-step, thoroughly-documented descent into Hell."
+
+[build]
+create-missing = true
+
+[output.html]
+mathjax-support = true
+site-url = "/kubernetes-the-excruciating-way/"
+git-repository-url = "https://github.com/goldentooth/kubernetes-the-excruciating-way"
+git-repository-icon = "fa-github"
