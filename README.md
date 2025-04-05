@@ -1,6 +1,6 @@
-# Kubernetes, the _Excruciating_ Way
+# GoldenTooth Blog (formerly **Kubernetes, the _Excruciating_ Way**)
 
-Basically just a journal of me working through creating and configuring and doing a bunch of stuff with a Kubernetes cluster.
+Basically just a journal of me working through creating and configuring and doing a bunch of stuff with my Pi Bramble.
 
 Obviously, this owes a lot to Kelsey Hightower's [_Kubernetes the Hard Way_](https://github.com/kelseyhightower/kubernetes-the-hard-way) and its various derivatives, many of which I may have pillaged in desperation while banging my head against various walls.
 
@@ -10,4 +10,4 @@ I'm working on some Kubernetes certifications (CKA, CKAD, CKS), and in typical [
 
 The end result of this should be a working, high-availability Kubernetes cluster that I know inside and out. Because I'm rapidly aging and have an _okay_ memory (and also a love of memes), I'm going to document the crap out of the entire process.
 
-You can read it at https://goldentooth.github.io/kubernetes-the-excruciating-way/ .
+You can read it at https://goldentooth.net/ .
