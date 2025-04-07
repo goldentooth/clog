@@ -35,6 +35,7 @@
 - [Terraform](./033_terraform.md)
 - [Dynamic DNS](./034_dynamic_dns.md)
 - [Load Balancer Revisited](./035_load_balancer_revisited.md)
+- [CloudFront and ACM](./036_cloudfront_and_acm.md)
 
 <!--
   Slurm apps

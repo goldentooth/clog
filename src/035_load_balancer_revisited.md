@@ -27,9 +27,3 @@ server {
 ```
 
 And it just works; requesting http://httpbin.my-home.goldentooth.net:7463/ returns the appropriate service.
-
-The next step will be to set up a CloudFront distribution that uses this address format as an origin, with no caching, and an ACM certificate. Assuming I can do that. If I can't, I might need to figure something else out. I could also use CloudFlare, and indeed if anyone ever reads this they're probably screaming at me, "just use CloudFlare, you idiot," but I'm trying to restrict the number of services and complications that I need to keep operational simultaneously.
-
-Plus, I use Safari (and Brave) rather than Chrome, and one of the only systems with which I seem to encounter persistent issues using Safari is... CloudFlare. It might not for my use case, but I figure I would need to set it up just to test it.
-
-So, yes, I'm totally aware this is a nasty hack, but... I'm gonna try it.
