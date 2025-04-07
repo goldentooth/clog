@@ -34,6 +34,7 @@
 - [Slurm](./032_slurm.md)
 - [Terraform](./033_terraform.md)
 - [Dynamic DNS](./034_dynamic_dns.md)
+- [Load Balancer Revisited](./035_load_balancer_revisited.md)
 
 <!--
   Slurm apps
