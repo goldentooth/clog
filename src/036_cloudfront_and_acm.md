@@ -26,4 +26,4 @@ $ curl https://httpbin.home-proxy.goldentooth.net/ip
 }
 ```
 
-The latency is nonzero but not noticeable to me. It's still an ugly hack, and there are some security implications I'll need to deal with.
+The latency is nonzero but not noticeable to me. It's still an ugly hack, and there are some security implications I'll need to deal with. I ended up adding basic auth on the Nginx listener which, while not fantastic, is probably as much as I really need.
