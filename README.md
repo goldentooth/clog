@@ -10,4 +10,4 @@ I'm working on some Kubernetes certifications (CKA, CKAD, CKS), and in typical [
 
 The end result of this should be a working, high-availability Kubernetes cluster that I know inside and out. Because I'm rapidly aging and have an _okay_ memory (and also a love of memes), I'm going to document the crap out of the entire process.
 
-You can read it at https://goldentooth.net/ .
+You can read it at https://blog.goldentooth.net/ .

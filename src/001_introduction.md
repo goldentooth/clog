@@ -13,9 +13,9 @@ My name is Nathan Douglas. The best source of information about my electronic li
 ![What I'll Be Doing](./images/001_what_ill_be_doing.png)
 _The author in his eventual form advising the author in his present form not to do the thing, and why._
 
-I've been trying to get computers to do what I want, with mixed success, since the early mid-nineties. I earned my Bachelor's in Computer Science from the University of Nevada at Las Vegas in 2011, and I've been working as a software/DevOps engineer ever since, depending on gig.
+I've been trying to get computers to do what I want, with mixed success, since the early mid-nineties. I earned my Bachelor's in Computer Science from the University of Nevada at Las Vegas in 2011, and I've been working as a Software/DevOps engineer ever since, depending on gig.
 
-I consider myself a DevOps Engineer. I consider DevOps a methodology _and_ a role, in that I try to work in whatever capacity I can to improve the product delivery lifecycle and shorten delivery lead time. I generally do the work that is referred to as "DevOps" or "platform engineering" or "site reliability engineering", but I try to emphasize the theoretical aspects, e.g. Lean Management, sytems thinking, etc. That's not to say that I'm an expert, but just that I try to keep the technical details grounded in the philosophical justifications, the big picture.
+I consider DevOps a methodology _and_ a role, in that I try to work in whatever capacity I can to improve the product delivery lifecycle and shorten delivery lead time. I generally do the work that is referred to as "DevOps" or "platform engineering" or "site reliability engineering", but I try to emphasize the theoretical aspects, e.g. Lean Management, sytems thinking, etc. That's not to say that I'm an expert, but just that I try to keep the technical details grounded in the philosophical justifications, the big picture.
 
 **Update (2025-04-05)**: At present I consider myself more of a platform engineer. I'm trying to move into an MLOps space, though, and from there into High-Performance Computing. I also would like to eventually shift into deep tech research and possibly get my PhD in mathematics or computer science.
 
