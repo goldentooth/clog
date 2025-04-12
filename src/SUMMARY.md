@@ -53,6 +53,8 @@
   MinIO
   PostgREST
   Grafana
+  Istio
+  Kiali
   OpenTelemetry
   Databases:
     - Tools:
