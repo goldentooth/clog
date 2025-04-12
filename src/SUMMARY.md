@@ -38,6 +38,7 @@
 - [CloudFront and ACM](./036_cloudfront_and_acm.md)
 - [Prometheus](./037_prometheus.md)
 - [Consul](./038_consul.md)
+- [Vault](./039_vault.md)
 
 <!--
   Prometheus:
