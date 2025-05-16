@@ -40,6 +40,7 @@
 - [Consul](./038_consul.md)
 - [Vault](./039_vault.md)
 - [Envoy](./040_envoy.md)
+- [Step-CA](./041_step_ca.md)
 
 <!--
   Prometheus:
