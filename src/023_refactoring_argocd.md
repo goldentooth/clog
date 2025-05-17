@@ -19,7 +19,7 @@ metadata:
   finalizers:
     - 'resources-finalizer.argocd.argoproj.io'
 spec:
-  description: 'GoldenTooth GitOps-Repo project'
+  description: 'Goldentooth GitOps-Repo project'
   sourceRepos:
     - '*'
   destinations:

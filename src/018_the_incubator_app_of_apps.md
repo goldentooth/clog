@@ -29,7 +29,7 @@ metadata:
   finalizers:
     - 'resources-finalizer.argocd.argoproj.io'
 spec:
-  description: 'GoldenTooth incubator project'
+  description: 'Goldentooth incubator project'
   # Allow manifests to deploy from any Git repository.
   # This is an acceptable security risk because this is a lab environment
   # and I am the only user.

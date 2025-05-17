@@ -1,6 +1,6 @@
 # Terraform
 
-I would like my GoldenTooth services to be reachable from anywhere, but 1) I'd like trouble-free TLS encryption to the domain, and 2) I'd like to hide my home IP address. I can set up LetsEncrypt, but I've had issues in the past with local storage of certificates on what is essentially an ephemeral setup that might get blown up at any point. I'd like to prevent spurious strain on their systems, outages due to me spamming, etc etc etc. I'd prefer it if I could use AWS ACM. If I can use ACM and CloudFront and just not cache anything, or cache intelligently on a per-domain basis, that would be nice. I don't know if I can get that working - I know AWS intends ACM for AWS services – but I'll try.
+I would like my Goldentooth services to be reachable from anywhere, but 1) I'd like trouble-free TLS encryption to the domain, and 2) I'd like to hide my home IP address. I can set up LetsEncrypt, but I've had issues in the past with local storage of certificates on what is essentially an ephemeral setup that might get blown up at any point. I'd like to prevent spurious strain on their systems, outages due to me spamming, etc etc etc. I'd prefer it if I could use AWS ACM. If I can use ACM and CloudFront and just not cache anything, or cache intelligently on a per-domain basis, that would be nice. I don't know if I can get that working - I know AWS intends ACM for AWS services – but I'll try.
 
 So the first step of this is to set up Terraform; to create an S3 bucket to hold the state and a lock to support state locking.
 
