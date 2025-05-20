@@ -22,3 +22,19 @@ Once that's done, we have a few new Ansible playbooks:
 
 This gets us most of the way there, but we need to revisit some of the places we've generated certificates (Vault, Consul, and Nomad) and integrate them into this system.
 
+As it turned out, doing that involved refactor a good amount of my Ansible IaC. One thing I've learned about code quality:
+
+> Can you make the change easily? If so, make the change. If not, fix the most obvious obstacle, then reevaluate.
+
+In this case, the change in question was to use the `step` CLI tool to generate certificates signed by the `step-ca` root certificate authority for services like Nomad, Vault, and Consul.
+
+I knew immediately this would not be an easy change to make, just because of how I had written my Ansible roles. I had adopted conventional patterns for these roles, even though I knew they were not for general use and I didn't really have much intention of distributing them. Conventional patterns included naming variables expecting them to be reused across modules, etc. So I would declare variables in a general fashion within the `defaults/main.yaml` and then override them within my inventory's `group_vars` and `host_vars`.
+
+I now consider this to be a mistake. In reality, the modules weren't _really_ designed cleanly; there were a lot of assumptions based on my own use cases that I baked into the modules, and that affected which modules I declared, etc. So yeah, I had an Ansible role to set up Slurm, but it was by no means general enough to actually help most people set up Slurm. It just gathered together a lot of tasks that I found appropriate that had to do with setting up Slurm.
+
+Nevertheless, I persisted for a while. Mostly, I think, out of a belief that I should at least pay lip service to community style guidelines.
+
+This task, getting Nomad and Consul and Vault working with TLS courtesy of `step-ca`, was my breaking point. There was just too much crap that needed to be renamed, just to maintain the internal consistency of an increasingly clumsy architecture intended to please people who didn't notice and almost surely wouldn't care if they had.
+
+So, **TL;DR**: there was a great reduction in redundancy and I shifted to specifying variables in dictionaries rather than distinctly-named snake-cased variables that reminded me a little too much of Java naming conventions.
+
