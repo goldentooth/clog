@@ -20,7 +20,9 @@ Once that's done, we have a few new Ansible playbooks:
 - `bootstrap_cluster_ca`: Install the root certificate in the trust store on every node.
 - `zap_cluster_ca`: To clean up, just nuke every file in the `step-ca` data directory.
 
-This gets us most of the way there, but we need to revisit some of the places we've generated certificates (Vault, Consul, and Nomad) and integrate them into this system.
+The playbooks mentioned above get us most of the way there, but we need to revisit some of the places we've generated certificates (Vault, Consul, and Nomad) and integrate them into this system.
+
+## Refactoring HashiApp certificate management.
 
 As it turned out, doing that involved refactor a good amount of my Ansible IaC. One thing I've learned about code quality:
 
@@ -38,9 +40,6 @@ This task, getting Nomad and Consul and Vault working with TLS courtesy of `step
 
 So, **TL;DR**: there was a great reduction in redundancy and I shifted to specifying variables in dictionaries rather than distinctly-named snake-cased variables that reminded me a little too much of Java naming conventions.
 
-Anyway, I arrived at the following system with `step-ca`:
-- `apt_smallstep` configures the Smallstep Apt repository
-- `install_step_ca` installs `step-ca` and `step-cli` on the `step_ca` group, configures the systemd service, etc
-- `install_step_cli` installs `step-cli` on every other node
-- `init_cluster_ca` sets up the root and intermediate certificate authority on the `step_ca` group (only one node at present) and creates provisioners for the certificates I anticipate using (including SSH certificates)
-- `bootstrap_cluster_ca` distributes the root cert to all of the nodes and informs them of the credentials they can use to request certificates from the `step_ca` node
+## Configuring HashiApps to use Step-CA
+
+Once refactoring was done, configuring the apps to use Step-CA was mostly straightforward. A single `step` command was needed to generate the certificates, then another Ansible block to adjust the permissions and ownership of the generated files. For our labors, we're eventually greeted with Consul, Vault, and Nomad running exactly as they had before, but secured by a coherent certificate chain that can span all Goldentooth services.
