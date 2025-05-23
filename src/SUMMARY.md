@@ -41,6 +41,7 @@
 - [Vault](./039_vault.md)
 - [Envoy](./040_envoy.md)
 - [Step-CA](./041_step_ca.md)
+- [Ray](./042_ray.md)
 
 <!--
   Prometheus:
@@ -121,14 +122,14 @@
       - Build alerts that simulate pager-duty scenarios ("CPU > 80%, node drain triggered").
 
   - Systems Comparison Framework: Make it all dialectical — pit systems against each other, test their affordances.
-    | Area              | System 1      | System 2        | Criteria                                |
-    | ----------------- | ------------- | --------------- | --------------------------------------- |
-    | Job Scheduling    | K8s           | Slurm           | Startup latency, resource fairness      |
-    | Storage           | Ceph          | MinIO           | Throughput, replication behavior        |
-    | ML Pipelines      | MLFlow        | ZenML           | UX, integration ease                    |
-    | Queuing           | Kafka         | NATS            | Message loss, latency under burst       |
-    | Databases         | Postgres      | ClickHouse      |	Query expressivity vs. speed            |
-    | LB Strategy       | Round Robin   | Least Latency	  | Tail latency, connection churn          |
+    | Area           | System 1    | System 2      | Criteria                           |
+    | -------------- | ----------- | ------------- | ---------------------------------- |
+    | Job Scheduling | K8s         | Slurm         | Startup latency, resource fairness |
+    | Storage        | Ceph        | MinIO         | Throughput, replication behavior   |
+    | ML Pipelines   | MLFlow      | ZenML         | UX, integration ease               |
+    | Queuing        | Kafka       | NATS          | Message loss, latency under burst  |
+    | Databases      | Postgres    | ClickHouse    | Query expressivity vs. speed       |
+    | LB Strategy    | Round Robin | Least Latency | Tail latency, connection churn     |
 
   Projects:
     - A/B experiment simulator
