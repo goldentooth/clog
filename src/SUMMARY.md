@@ -42,8 +42,14 @@
 - [Envoy](./040_envoy.md)
 - [Step-CA](./041_step_ca.md)
 - [Ray](./042_ray.md)
+- [Grafana](./043_grafana.md)
+- [Loki](./044_loki.md)
+- [Vector](./045_vector.md)
 
 <!--
+  POTENTIAL TO-DO'S
+  =================
+
   Prometheus:
     - Blackbox Exporter
     - Other fun stuff
