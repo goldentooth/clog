@@ -27,3 +27,5 @@ Then I had to connect Grafana to Prometheus Node Exporter, then I realized I was
 ![Grafana Dashboard for Prometheus Node Exporter](./images/043_grafana_dashboard_1.png)
 
 Pretty cool, I think.
+
+I finished up by adding TLS support to Grafana.
