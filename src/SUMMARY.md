@@ -45,14 +45,25 @@
 - [Grafana](./043_grafana.md)
 - [Loki](./044_loki.md)
 - [Vector](./045_vector.md)
+- [New Server!](./046_new_server.md)
 
 <!--
   POTENTIAL TO-DO'S
   =================
+  Loki:
+    - Configure .kubeconfig so we can retrieve logs from Kubernetes
 
   Prometheus:
     - Blackbox Exporter
     - Other fun stuff
+    - Service Discovery:
+      - Docker
+      - Consul
+      - Kubernetes
+      - Nomad
+      - Alertmanager
+
+  Set up SSDs
   Slurm apps
   Kubeflow
   MLflow
@@ -60,6 +71,7 @@
   Consul
   Vault
   Weights & Biases
+  Dagster
   MinIO
   PostgREST
   Grafana
