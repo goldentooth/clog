@@ -46,6 +46,7 @@
 - [Loki](./044_loki.md)
 - [Vector](./045_vector.md)
 - [New Server!](./046_new_server.md)
+- [New Rack!](./047_new_rack.md)
 
 <!--
   POTENTIAL TO-DO'S
