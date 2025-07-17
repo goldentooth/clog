@@ -196,4 +196,6 @@ cargyll | CHANGED | rc=0 >>
 
 and then I was able to restart the cluster.
 
-As it turned out, I had to rotate the Consul certificates anyway, since they were invalid, but I _think_ it's working now.
+As it turned out, I had to rotate the Consul certificates anyway, since they were invalid, but I _think_ it's working now. I've shortened the cert lifetime to 24 hours, so I should find out pretty quickly 🙂
+
+After that, it's the same procedure (rotate the certs, then re-setup the app and install the cert renewal timer) for Grafana, Loki, Nomad, Vault, and Vector.
