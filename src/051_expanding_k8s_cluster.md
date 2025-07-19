@@ -124,3 +124,188 @@ nodeSelector:
 
 This ensures that only workloads explicitly designed for GPU execution can access the expensive GPU resources, following the same intentional scheduling pattern used with Nomad.
 
+## GPU Resource Detection Challenge
+
+While the taint-based scheduling was working correctly, getting Kubernetes to actually detect and expose the GPU resources proved more challenging. The NVIDIA device plugin is responsible for discovering GPUs and advertising them as `nvidia.com/gpu` resources that pods can request.
+
+### Initial Problem
+
+The device plugin was failing with the error:
+```
+E0719 16:20:41.050191       1 factory.go:115] Incompatible platform detected
+E0719 16:20:41.050193       1 factory.go:116] If this is a GPU node, did you configure the NVIDIA Container Toolkit?
+```
+
+Despite having installed the NVIDIA Container Toolkit and configuring containerd, the device plugin couldn't detect the NVML library from within its container environment.
+
+### The Root Cause
+
+The issue was that the device plugin container couldn't access:
+1. **NVIDIA Management Library**: `libnvidia-ml.so.1` needed for GPU discovery
+2. **Device files**: `/dev/nvidia*` required for direct GPU communication
+3. **Proper privileges**: Needed to interact with kernel-level GPU drivers
+
+### The Solution
+
+After several iterations, the working configuration required:
+
+**Library Access**:
+```yaml
+volumeMounts:
+- name: nvidia-ml-lib
+  mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
+  readOnly: true
+- name: nvidia-ml-actual
+  mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.575.51.03
+  readOnly: true
+```
+
+**Device Access**:
+```yaml
+volumeMounts:
+- name: dev
+  mountPath: /dev
+volumes:
+- name: dev
+  hostPath:
+    path: /dev
+```
+
+**Container Privileges**:
+```yaml
+securityContext:
+  privileged: true
+```
+
+### Verification
+
+Once properly configured, the device plugin successfully reported:
+```
+I0719 16:56:06.462937       1 server.go:165] Starting GRPC server for 'nvidia.com/gpu'
+I0719 16:56:06.463631       1 server.go:117] Starting to serve 'nvidia.com/gpu' on /var/lib/kubelet/device-plugins/nvidia-gpu.sock
+I0719 16:56:06.465420       1 server.go:125] Registered device plugin for 'nvidia.com/gpu' with Kubelet
+```
+
+The GPU resource then appeared in the node's capacity:
+```bash
+kubectl get nodes -o json | jq '.items[] | select(.metadata.name=="velaryon") | .status.capacity'
+```
+```json
+{
+  "cpu": "24",
+  "ephemeral-storage": "102626232Ki",
+  "hugepages-1Gi": "0",
+  "hugepages-2Mi": "0",
+  "memory": "32803048Ki",
+  "nvidia.com/gpu": "1",
+  "pods": "110"
+}
+```
+
+### Testing GPU Resource Allocation
+
+To verify the system was working end-to-end, I created a test pod that:
+- **Requests GPU resources**: `nvidia.com/gpu: 1`
+- **Includes proper tolerations**: To bypass the `gpu=true:NoSchedule` taint
+- **Targets the GPU node**: Using `gpu: "true"` node selector
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-test-workload
+spec:
+  tolerations:
+  - key: gpu
+    operator: Equal
+    value: "true"
+    effect: NoSchedule
+  nodeSelector:
+    gpu: "true"
+  containers:
+  - name: gpu-test
+    image: busybox
+    command: ["sleep", "60"]
+    resources:
+      requests:
+        nvidia.com/gpu: 1
+      limits:
+        nvidia.com/gpu: 1
+```
+
+The pod successfully scheduled and the node showed:
+```
+nvidia.com/gpu     1          1
+```
+
+This confirmed that GPU resource allocation tracking was working correctly.
+
+## Final NVIDIA Device Plugin Configuration
+
+For reference, here's the complete working NVIDIA device plugin DaemonSet configuration:
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nvidia-device-plugin-daemonset
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: nvidia-device-plugin-ds
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: nvidia-device-plugin-ds
+    spec:
+      tolerations:
+      - key: gpu
+        operator: Equal
+        value: "true"
+        effect: NoSchedule
+      nodeSelector:
+        gpu: "true"
+      priorityClassName: system-node-critical
+      containers:
+      - image: nvcr.io/nvidia/k8s-device-plugin:v0.14.5
+        name: nvidia-device-plugin-ctr
+        env:
+        - name: FAIL_ON_INIT_ERROR
+          value: "false"
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: device-plugin
+          mountPath: /var/lib/kubelet/device-plugins
+        - name: dev
+          mountPath: /dev
+        - name: nvidia-ml-lib
+          mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
+          readOnly: true
+        - name: nvidia-ml-actual
+          mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.575.51.03
+          readOnly: true
+      volumes:
+      - name: device-plugin
+        hostPath:
+          path: /var/lib/kubelet/device-plugins
+      - name: dev
+        hostPath:
+          path: /dev
+      - name: nvidia-ml-lib
+        hostPath:
+          path: /lib/x86_64-linux-gnu/libnvidia-ml.so.1
+      - name: nvidia-ml-actual
+        hostPath:
+          path: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.575.51.03
+```
+
+Key aspects of this configuration:
+- **Targeted deployment**: Only runs on nodes with `gpu: "true"` label
+- **Taint tolerance**: Can schedule on nodes with `gpu=true:NoSchedule` taint
+- **Privileged access**: Required for kernel-level GPU driver interaction
+- **Library binding**: Specific mounts for NVIDIA ML library files
+- **Device access**: Full `/dev` mount for GPU device communication
