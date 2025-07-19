@@ -82,6 +82,172 @@ applicationSet:
 
 ![Pods in the Argo CD namespace](./images/017_argocd_pods.png)
 
-After running `kubectl -n argocd port-forward service/argocd-server 8081:443 --address 0.0.0.0` on one of my control plane nodes, I'm able to view the web interface, log in, but there's nothing interesting.
+## Installation Architecture
 
-I'll try to improve this situation shortly.
+The Argo CD installation uses a sophisticated Helm-based approach with the following components:
+
+- **Chart Version**: 7.1.5 from the official Argo repository (`https://argoproj.github.io/argo-helm`)
+- **CLI Installation**: ARM64-specific Argo CD CLI installed to `/usr/local/bin/argocd`
+- **Namespace**: Dedicated `argocd` namespace with proper resource isolation
+- **Deployment Scope**: Runs once on control plane nodes for efficient resource usage
+
+### High Availability Configuration
+
+The installation implements enterprise-grade high availability:
+
+**Redis High Availability**:
+```yaml
+redis-ha:
+  enabled: true
+```
+
+**Component Scaling**:
+- **Server**: Autoscaling enabled with minimum 2 replicas for redundancy
+- **Repo Server**: Autoscaling enabled with minimum 2 replicas for Git repository operations
+- **Application Set Controller**: 2 replicas for ApplicationSet management
+- **Controller**: 1 replica (following HA recommendations for the core controller)
+
+This configuration ensures that Argo CD remains operational even during node failures or maintenance.
+
+### Security and Authentication
+
+**Admin Authentication**:
+The cluster uses bcrypt-hashed passwords stored in the encrypted Ansible vault:
+
+```yaml
+argocdServerAdminPassword: "{{ secret_vault.easy_password | password_hash('bcrypt') }}"
+```
+
+**GitHub Integration**:
+For private repository access, the installation creates a Kubernetes secret:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-token
+  namespace: argocd
+data:
+  token: "{{ secret_vault.github_token | b64encode }}"
+```
+
+**Current Security Posture**:
+- Server configured with `--insecure` flag (temporary for initial setup)
+- Network policies prepared but not yet enforced
+- RBAC relies on default admin access patterns
+
+### Service and Network Integration
+
+**LoadBalancer Configuration**:
+Unlike the basic ClusterIP shown in the values, the actual deployment uses:
+
+```yaml
+service:
+  type: LoadBalancer
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: "argocd.{{ cluster.domain }}"
+    external-dns.alpha.kubernetes.io/ttl: "60"
+```
+
+This integration provides:
+- **MetalLB Integration**: Automatic IP address assignment from the `10.4.11.0/24` pool
+- **External DNS**: Automatic DNS record creation for `argocd.goldentooth.net`
+- **Public Access**: Direct access from the broader network infrastructure
+
+### GitOps Implementation: App of Apps Pattern
+
+The cluster implements the sophisticated "Application of Applications" pattern for managing GitOps workflows:
+
+**AppProject Configuration**:
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: gitops-repo
+spec:
+  sourceRepos:
+    - '*'  # Lab environment - all repositories allowed
+  destinations:
+    - namespace: '*'
+       server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+```
+
+**ApplicationSet Generator**:
+The cluster uses GitHub SCM Provider generator to automatically discover and deploy applications:
+
+```yaml
+generators:
+- scmProvider:
+    github:
+      organization: goldentooth
+      labelSelector:
+        matchLabels:
+          gitops-repo: "true"
+```
+
+This pattern automatically creates Argo CD Applications for any repository in the goldentooth organization with the `gitops-repo` label.
+
+### Application Standards and Sync Policies
+
+**Standardized Sync Configuration**:
+All applications follow consistent sync policies:
+
+```yaml
+syncPolicy:
+  automated:
+    prune: true      # Remove resources not in Git
+    selfHeal: true   # Automatically fix configuration drift
+  syncOptions:
+    - Validate=true
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ApplyOutOfSyncOnly=true
+```
+
+**Wave-based Deployment**:
+Applications use `argocd.argoproj.io/wave` annotations for ordered deployment, ensuring dependencies are deployed before dependent services.
+
+### Monitoring Integration
+
+**Prometheus Integration**:
+```yaml
+global:
+  addPrometheusAnnotations: true
+```
+
+This configuration ensures all Argo CD components expose metrics for the cluster's Prometheus monitoring stack, providing visibility into GitOps operations and performance.
+
+### Current Application Portfolio
+
+The GitOps system currently manages:
+- **MetalLB**: Load balancer implementation
+- **External Secrets**: Integration with HashiCorp Vault
+- **Prometheus Node Exporter**: Node-level monitoring
+- **Additional applications**: Automatically discovered via the ApplicationSet pattern
+
+### Command Line Integration
+
+The installation provides seamless CLI integration:
+
+```bash
+# Install Argo CD
+goldentooth install_argo_cd
+
+# Install managed applications
+goldentooth install_argo_cd_apps
+```
+
+### Access Methods
+
+**Web Interface Access**:
+- **Production**: Direct access via `https://argocd.goldentooth.net` (LoadBalancer + External DNS)
+- **Development**: Port forwarding via `kubectl -n argocd port-forward service/argocd-server 8081:443 --address 0.0.0.0`
+
+After running the port-forward command on one of my control plane nodes, I'm able to view the web interface and log in. With the App of Apps pattern configured, the interface shows automatically discovered applications and their sync status.
+
+The GitOps foundation is now established, enabling declarative application management across the entire cluster infrastructure.
