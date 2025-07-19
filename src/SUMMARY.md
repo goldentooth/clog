@@ -48,6 +48,7 @@
 - [New Server!](./046_new_server.md)
 - [New Rack!](./047_new_rack.md)
 - [TLS certificate renewal](./048_tls_cert_renewal.md)
+- [SSH Certificates](./049_ssh_certificates.md)
 
 <!--
   POTENTIAL TO-DO'S
