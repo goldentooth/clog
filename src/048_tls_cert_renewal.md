@@ -78,9 +78,9 @@ Then I created an overrides file for Consul:
 [Service]
 ; `Environment=` overrides are applied per environment variable. This line does not
 ; affect any other variables set in the service template.
-Environment=CERT_LOCATION="{{ consul.cert_path }}" \
-            KEY_LOCATION="{{ consul.key_path }}"
-WorkingDirectory="{{ consul.key_path | dirname }}"
+Environment=CERT_LOCATION={{ consul.cert_path }} \
+            KEY_LOCATION={{ consul.key_path }}
+WorkingDirectory={{ consul.key_path | dirname }}
 
 ; Restart Consul service after certificate renewal
 ExecStartPost=/usr/bin/env sh -c "! systemctl --quiet is-active consul.service || systemctl try-reload-or-restart consul.service"
