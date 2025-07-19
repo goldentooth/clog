@@ -50,6 +50,7 @@
 - [TLS certificate renewal](./048_tls_cert_renewal.md)
 - [SSH Certificates](./049_ssh_certificates.md)
 - [ZFS and Replication](./050_zfs_replication.md)
+- [Expanding the Kubernetes Cluster](./051_expanding_k8s_cluster.md)
 
 <!--
   POTENTIAL TO-DO'S
