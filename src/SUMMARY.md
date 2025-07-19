@@ -49,6 +49,7 @@
 - [New Rack!](./047_new_rack.md)
 - [TLS certificate renewal](./048_tls_cert_renewal.md)
 - [SSH Certificates](./049_ssh_certificates.md)
+- [ZFS and Replication](./050_zfs_replication.md)
 
 <!--
   POTENTIAL TO-DO'S
