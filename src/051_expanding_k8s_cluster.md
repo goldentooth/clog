@@ -90,7 +90,37 @@ Perfect! Both nodes transitioned from "NotReady" to "Ready" status within about 
 Our Kubernetes cluster now consists of:
 
 - **Control Plane (3 nodes)**: bettley, cargyll, dalt
-- **Workers (9 nodes)**: erenford, fenn, gardener, harlton, inchfield, jast, karstark, lipps, velaryon
+- **Workers (9 nodes)**: erenford, fenn, gardener, harlton, inchfield, jast, karstark, lipps, velaryon (GPU)
 
 This brings us to a total of 12 nodes in the Kubernetes cluster, matching the full complement of our Raspberry Pi bramble plus the x86 GPU node.
+
+## GPU Node Configuration
+
+[Velaryon](./046_new_server.md), my x86 GPU node, required special configuration to ensure GPU workloads are only scheduled intentionally:
+
+### Hardware Specifications
+- **GPU**: NVIDIA GeForce RTX 2070 (8GB VRAM)
+- **CPU**: 24 cores (x86_64)
+- **Memory**: 32GB RAM
+- **Architecture**: amd64
+
+### Kubernetes Configuration
+The node is configured with:
+- **Label**: `gpu=true` for workload targeting
+- **Taint**: `gpu=true:NoSchedule` to prevent accidental scheduling
+- **Architecture**: `arch=amd64` for x86-specific workloads
+
+### Scheduling Requirements
+To schedule workloads on Velaryon, pods must include:
+```yaml
+tolerations:
+- key: gpu
+  operator: Equal
+  value: "true"
+  effect: NoSchedule
+nodeSelector:
+  gpu: "true"
+```
+
+This ensures that only workloads explicitly designed for GPU execution can access the expensive GPU resources, following the same intentional scheduling pattern used with Nomad.
 
