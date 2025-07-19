@@ -51,6 +51,7 @@
 - [SSH Certificates](./049_ssh_certificates.md)
 - [ZFS and Replication](./050_zfs_replication.md)
 - [Expanding the Kubernetes Cluster](./051_expanding_k8s_cluster.md)
+- [Ceph Distributed Storage](./052_ceph_distributed_storage.md)
 
 <!--
   POTENTIAL TO-DO'S
