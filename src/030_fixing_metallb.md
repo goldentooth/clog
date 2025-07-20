@@ -302,7 +302,7 @@ After the initial MetalLB L2 migration, several additional issues were discovere
 During verification, a critical issue emerged with "super shaky" primary interface selection on cluster nodes. Some nodes (particularly newer ones like `lipps` and `karstark`) had both wired (`eth0`) and wireless (`wlan0`) interfaces active, causing:
 
 - **Calico confusion**: CNI plugin using wireless interfaces for pod networking
-- **MetalLB routing failures**: ARP announcements on wrong interfaces  
+- **MetalLB routing failures**: ARP announcements on wrong interfaces
 - **Inconsistent connectivity**: Services unreachable from certain nodes
 
 **Solution implemented:**
@@ -335,7 +335,7 @@ The L2 migration coincided with a broader DNS restructuring from `hellholt.net` 
 
 **New domain structure:**
 - **Nodes**: `<node>.nodes.goldentooth.net`
-- **Kubernetes services**: `<service>.services.k8s.goldentooth.net`  
+- **Kubernetes services**: `<service>.services.k8s.goldentooth.net`
 - **Nomad services**: `<service>.services.nomad.goldentooth.net`
 - **General services**: `<service>.services.goldentooth.net`
 
@@ -361,7 +361,7 @@ The MetalLB L2 configuration is now fully operational with the following verifie
 # Check MetalLB speaker status
 kubectl -n metallb logs -l app.kubernetes.io/component=speaker --tail=20
 
-# Verify L2 announcements  
+# Verify L2 announcements
 kubectl -n metallb logs -l app.kubernetes.io/component=speaker | grep "announcing"
 
 # Test connectivity to LoadBalancer IPs
@@ -381,12 +381,3 @@ goldentooth command all_nodes "ip link show | grep -E '(eth0|wlan)'"
 - **IP Pool**: `10.4.11.0 - 10.4.15.254`
 - **Interface**: `eth0` (consistently across all nodes)
 - **FRR**: Disabled in Helm values for pure L2 operation
-
-### Lessons Learned
-
-1. **Interface consistency is critical**: Mixed interface types cause unpredictable routing behavior
-2. **DNS migration complexity**: Coordinating changes across Terraform, Ansible, and Kubernetes requires careful planning
-3. **L2 mode simplicity**: While less scalable than BGP, L2 mode is significantly easier to troubleshoot and maintain
-4. **Automation importance**: Robust configuration management prevents configuration drift on individual nodes
-
-The MetalLB L2 migration is now complete and fully operational, providing reliable load balancing for Kubernetes services with proper DNS integration and consistent network interface management across the entire cluster.
