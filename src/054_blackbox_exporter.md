@@ -163,15 +163,3 @@ curl "http://allyrion:9115/probe?target=http://localhost:9090&module=http_2xx"
 # View all blackbox targets in Prometheus
 curl "http://allyrion:9090/api/v1/targets" | grep blackbox
 ```
-
-## Looking Forward
-
-The blackbox exporter gives us the foundation for:
-- **SLA monitoring** - Track service uptime and response times
-- **Alert rules** - Get notified when critical services go down
-- **Grafana dashboards** - Visualize service availability across the cluster
-- **Capacity planning** - Understand service performance trends
-
-We now have comprehensive visibility into our cluster from both the infrastructure (white-box) and user experience (black-box) perspectives. When users can't reach a service, we'll know about it before they complain!
-
-The synthetic monitoring infrastructure is deployed and ready to keep watch over our growing cluster. 🚀
