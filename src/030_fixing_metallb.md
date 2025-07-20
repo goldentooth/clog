@@ -136,7 +136,7 @@ After adding the static route to my router, I can see the friendly `go-httpbin` 
 **Leader election process**:
 ```bash
 # Check current leader for a service
-kubectl -n metallb logs -l component=speaker | grep "announcing"
+kubectl -n metallb logs -l app.kubernetes.io/component=speaker | grep "announcing"
 
 # Example output:
 # {"level":"info","ts":"2024-01-15T10:30:00Z","msg":"announcing","ip":"10.4.11.1","node":"bettley"}
@@ -175,7 +175,7 @@ So I created a new domain, goldentooth.net, to handle this cluster. A couple of 
 args:
 - --domain-filter=hellholt.net
 
-# New configuration  
+# New configuration
 args:
 - --domain-filter=goldentooth.net
 ```
@@ -283,7 +283,7 @@ spec:
   # BGP configuration removed
   # bgpPeers: []
   # bgpAdvertisements: []
-  
+
   # Layer 2 configuration added
   l2Advertisements:
   - name: primary
@@ -292,3 +292,101 @@ spec:
 ```
 
 This transition demonstrates the flexibility of MetalLB to adapt to different network environments while maintaining service availability. While Layer 2 mode has limitations compared to BGP, it provides a viable solution for simpler network infrastructures and reduces operational complexity in exchange for some scalability constraints.
+
+## Post-Implementation Updates and Additional Fixes
+
+After the initial MetalLB L2 migration, several additional issues were discovered and resolved to achieve full operational status.
+
+### Network Interface Selection Issues
+
+During verification, a critical issue emerged with "super shaky" primary interface selection on cluster nodes. Some nodes (particularly newer ones like `lipps` and `karstark`) had both wired (`eth0`) and wireless (`wlan0`) interfaces active, causing:
+
+- **Calico confusion**: CNI plugin using wireless interfaces for pod networking
+- **MetalLB routing failures**: ARP announcements on wrong interfaces  
+- **Inconsistent connectivity**: Services unreachable from certain nodes
+
+**Solution implemented:**
+1. **Enhanced networking role**: Created robust interface detection logic preferring `eth0`
+2. **Wireless interface management**: Automatic detection and disabling of `wlan0` on dual-homed nodes
+3. **SystemD persistence**: Network configurations and wireless disable service survive reboots
+4. **Network debugging tools**: Installed comprehensive toolset (`arping`, `tcpdump`, `mtr`, etc.)
+
+**Networking role improvements:**
+```yaml
+# /ansible/roles/goldentooth.setup_networking/tasks/main.yaml
+- name: 'Set primary interface to eth0 if available'
+  ansible.builtin.set_fact:
+    metallb_interface: 'eth0'
+  when:
+    - 'network.metallb.interface == ""'
+    - 'eth0_exists.rc == 0'
+
+- name: 'Disable wireless interface if both eth0 and wireless exist'
+  ansible.builtin.shell:
+    cmd: "ip link set {{ wireless_interface_name.stdout }} down"
+  when:
+    - 'wireless_interface_count.stdout | int > 0'
+    - 'eth0_exists.rc == 0'
+```
+
+### DNS Architecture Migration
+
+The L2 migration coincided with a broader DNS restructuring from `hellholt.net` to `goldentooth.net` with hierarchical service domains:
+
+**New domain structure:**
+- **Nodes**: `<node>.nodes.goldentooth.net`
+- **Kubernetes services**: `<service>.services.k8s.goldentooth.net`  
+- **Nomad services**: `<service>.services.nomad.goldentooth.net`
+- **General services**: `<service>.services.goldentooth.net`
+
+**ExternalDNS integration:**
+```yaml
+# Service annotations for automatic DNS management
+metadata:
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: "argocd.services.k8s.goldentooth.net"
+    external-dns.alpha.kubernetes.io/ttl: "60"
+```
+
+### Current Operational Status (July 2025)
+
+The MetalLB L2 configuration is now fully operational with the following verified services:
+
+**Active LoadBalancer services:**
+- **ArgoCD**: `argocd.services.k8s.goldentooth.net` → `10.4.11.0`
+- **HTTPBin**: `httpbin.services.k8s.goldentooth.net` → `10.4.11.1`
+
+**Verification commands (updated):**
+```bash
+# Check MetalLB speaker status
+kubectl -n metallb logs -l app.kubernetes.io/component=speaker --tail=20
+
+# Verify L2 announcements  
+kubectl -n metallb logs -l app.kubernetes.io/component=speaker | grep "announcing"
+
+# Test connectivity to LoadBalancer IPs
+curl -I http://10.4.11.1/  # HTTPBin
+curl -I http://10.4.11.0/  # ArgoCD
+
+# Verify DNS resolution
+dig argocd.services.k8s.goldentooth.net
+dig httpbin.services.k8s.goldentooth.net
+
+# Check interface status on all nodes
+goldentooth command all_nodes "ip link show | grep -E '(eth0|wlan)'"
+```
+
+**MetalLB configuration summary:**
+- **Mode**: Layer 2 (BGP disabled)
+- **IP Pool**: `10.4.11.0 - 10.4.15.254`
+- **Interface**: `eth0` (consistently across all nodes)
+- **FRR**: Disabled in Helm values for pure L2 operation
+
+### Lessons Learned
+
+1. **Interface consistency is critical**: Mixed interface types cause unpredictable routing behavior
+2. **DNS migration complexity**: Coordinating changes across Terraform, Ansible, and Kubernetes requires careful planning
+3. **L2 mode simplicity**: While less scalable than BGP, L2 mode is significantly easier to troubleshoot and maintain
+4. **Automation importance**: Robust configuration management prevents configuration drift on individual nodes
+
+The MetalLB L2 migration is now complete and fully operational, providing reliable load balancing for Kubernetes services with proper DNS integration and consistent network interface management across the entire cluster.
