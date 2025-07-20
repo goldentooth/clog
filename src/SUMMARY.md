@@ -52,6 +52,7 @@
 - [ZFS and Replication](./050_zfs_replication.md)
 - [Expanding the Kubernetes Cluster](./051_expanding_k8s_cluster.md)
 - [Ceph Distributed Storage](./052_ceph_distributed_storage.md)
+- [GPU Storage NFS Export](./053_gpu_storage_nfs.md)
 
 <!--
   POTENTIAL TO-DO'S
