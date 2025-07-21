@@ -54,3 +54,4 @@
 - [Ceph Distributed Storage](./052_ceph_distributed_storage.md)
 - [GPU Storage NFS Export](./053_gpu_storage_nfs.md)
 - [Prometheus Blackbox Exporter](./054_blackbox_exporter.md)
+- [Comprehensive Metrics Collection](./055_comprehensive_metrics_collection.md)
