@@ -60,3 +60,4 @@
 - [Slurm Refactoring and Improvements](./058_slurm_refactoring_improvements.md)
 - [Prometheus Slurm Exporter Integration](./059_prometheus_slurm_exporter.md)
 - [Certificate Renewal Debugging Odyssey](./060_certificate_renewal_debugging_odyssey.md)
+- [Nextflow Workflow Management System](./061_nextflow_installation.md)
