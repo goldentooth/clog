@@ -58,3 +58,4 @@
 - [Blocking Docker Installation](./056_blocking_docker_installation.md)
 - [Infrastructure Test Framework Improvements](./057_infrastructure_test_framework_improvements.md)
 - [Slurm Refactoring and Improvements](./058_slurm_refactoring_improvements.md)
+- [Prometheus Slurm Exporter Integration](./059_prometheus_slurm_exporter.md)
