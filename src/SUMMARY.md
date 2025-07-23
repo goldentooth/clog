@@ -57,3 +57,4 @@
 - [Comprehensive Metrics Collection](./055_comprehensive_metrics_collection.md)
 - [Blocking Docker Installation](./056_blocking_docker_installation.md)
 - [Infrastructure Test Framework Improvements](./057_infrastructure_test_framework_improvements.md)
+- [Slurm Refactoring and Improvements](./058_slurm_refactoring_improvements.md)
