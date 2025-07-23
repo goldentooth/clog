@@ -128,20 +128,3 @@ chmod 755 /mnt/usb1  # Was 700, preventing slurm user access
 general*     up   infinite      9   idle bettley,cargyll,dalt,erenford,fenn,gardener,harlton,inchfield,jast
 debug        up   infinite      9   idle bettley,cargyll,dalt,erenford,fenn,gardener,harlton,inchfield,jast
 ```
-
-## Future Improvements
-
-### Monitoring Integration
-- **Prometheus Exporter**: Add prometheus-slurm-exporter for job metrics
-- **Grafana Dashboards**: Visualize cluster utilization and job statistics
-- **Alerting**: Notify on node failures or queue backlogs
-
-### Resource Management
-- **GPU Support**: Integrate velaryon GPU node with GRES configuration
-- **Storage Tiering**: Implement fast local scratch with shared NFS storage
-- **Network Awareness**: Add bandwidth and connectivity constraints
-
-### Configuration Enhancement
-- **Node Classes**: Group nodes by capability (8GB Pi, 4GB Pi, GPU)
-- **Workload Partitions**: Create specialized queues for different job types
-- **Container Integration**: Support Singularity/Podman for containerized jobs

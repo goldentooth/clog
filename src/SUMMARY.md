@@ -61,3 +61,4 @@
 - [Prometheus Slurm Exporter Integration](./059_prometheus_slurm_exporter.md)
 - [Certificate Renewal Debugging Odyssey](./060_certificate_renewal_debugging_odyssey.md)
 - [Nextflow Workflow Management System](./061_nextflow_installation.md)
+- [Prometheus Node Exporter Migration: From Kubernetes to Native](./062_prometheus_node_exporter_migration.md)

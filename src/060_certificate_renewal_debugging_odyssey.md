@@ -27,7 +27,7 @@ I created a new Ansible role `goldentooth.setup_cert_renewer_canary` that:
 
 1. **Creates a dedicated user and service**: `cert-canary` user with its own systemd service
 2. **Uses 15-minute certificate lifetimes**: Fast enough to debug quickly
-3. **Runs on a 5-minute timer**: Same schedule as production services  
+3. **Runs on a 5-minute timer**: Same schedule as production services
 4. **Provides comprehensive logging**: Detailed output for debugging
 
 ```yaml
@@ -122,7 +122,7 @@ While debugging the certificate issue, I also built comprehensive monitoring das
 I created three major monitoring dashboards:
 
 1. **Slurm Cluster Overview**: Job queue metrics, resource utilization, historical trends
-2. **HashiCorp Services Overview**: Consul health, Vault status, Nomad allocation monitoring  
+2. **HashiCorp Services Overview**: Consul health, Vault status, Nomad allocation monitoring
 3. **Infrastructure Health Overview**: Node uptime, storage capacity, network metrics
 
 ### Enhanced Metrics Collection
@@ -203,14 +203,8 @@ Building node-aware certificate tests revealed issues with service deployment as
 With these improvements in place, the certificate renewal system is now:
 
 - **Robust**: Environment variable configuration allows per-service tuning
-- **Observable**: Comprehensive dashboards and alerting prevent silent failures  
+- **Observable**: Comprehensive dashboards and alerting prevent silent failures
 - **Testable**: Certificate canary provides rapid feedback on renewal health
 - **Validated**: Automated tests ensure certificates are present and valid on appropriate nodes
 
 The certificate canary continues to renew every 15 minutes like clockwork, providing confidence that the production certificates with 24-hour lifetimes will also renew successfully.
-
-## Next Steps
-
-There's still one pending task: deploying the updated cert-renewer configuration to all production services. The infrastructure is now in place, but the actual deployment needs to be carefully orchestrated to avoid service disruption.
-
-The monitoring dashboards are providing excellent visibility into cluster operations, and the certificate renewal system is significantly more robust than before. What started as a debugging session turned into a comprehensive infrastructure improvement project - sometimes the best solutions come from thoroughly understanding your failures.
