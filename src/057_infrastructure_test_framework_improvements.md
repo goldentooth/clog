@@ -8,9 +8,9 @@ When running `goldentooth test all`, multiple test failures appeared across diff
 
 ```bash
 PLAY RECAP *********************************************************************
-bettley                    : ok=47   changed=0    unreachable=0    failed=1    skipped=3    rescued=0    ignored=2   
-cargyll                    : ok=47   changed=0    unreachable=0    failed=1    skipped=3    rescued=0    ignored=1   
-dalt                       : ok=47   changed=0    unreachable=0    failed=1    skipped=3    rescued=0    ignored=1   
+bettley                    : ok=47   changed=0    unreachable=0    failed=1    skipped=3    rescued=0    ignored=2
+cargyll                    : ok=47   changed=0    unreachable=0    failed=1    skipped=3    rescued=0    ignored=1
+dalt                       : ok=47   changed=0    unreachable=0    failed=1    skipped=3    rescued=0    ignored=1
 ```
 
 The challenge was determining whether these failures indicated real infrastructure issues or problems with the test framework itself.
@@ -69,9 +69,9 @@ After renewal, certificates were valid until July 2026:
 
 ```
 CERTIFICATE                EXPIRES                  RESIDUAL TIME   CERTIFICATE AUTHORITY   EXTERNALLY MANAGED
-apiserver                  Jul 23, 2026 00:01 UTC   364d            ca                      no      
-etcd-peer                  Jul 23, 2026 00:01 UTC   364d            etcd-ca                 no      
-etcd-server                Jul 23, 2026 00:01 UTC   364d            etcd-ca                 no      
+apiserver                  Jul 23, 2026 00:01 UTC   364d            ca                      no
+etcd-peer                  Jul 23, 2026 00:01 UTC   364d            etcd-ca                 no
+etcd-server                Jul 23, 2026 00:01 UTC   364d            etcd-ca                 no
 ```
 
 ## Test Framework Fixes
@@ -122,7 +122,7 @@ Enhanced Consul connectivity testing with proper address specification:
 
 - name: Check Consul members
   command: consul members -status=alive -http-addr={{ ansible_default_ipv4.address }}:8500
-  when: 
+  when:
     - consul_service.status.ActiveState == "active"
     - consul_command_stat.stat.exists
 ```
@@ -141,7 +141,7 @@ Simplified Kubernetes tests to avoid JMESPath dependencies and fixed variable sc
 - name: Record API health test
   set_fact:
     k8s_tests: "{{ k8s_tests + [{'name': 'k8s_api_healthy', 'category': 'kubernetes', 'success': (k8s_api.status == 200 and k8s_api.content | default('') == 'ok') | bool, 'duration': 0.2}] }}"
-  when: 
+  when:
     - k8s_api is defined
     - inventory_hostname in groups['k8s_control_plane']
 ```
@@ -199,41 +199,18 @@ After implementing all fixes, the comprehensive test suite achieved **100% succe
 
 ```bash
 PLAY RECAP *********************************************************************
-allyrion                   : ok=51   changed=2    unreachable=0    failed=0    skipped=21   rescued=0    ignored=1   
-bettley                    : ok=79   changed=2    unreachable=0    failed=0    skipped=19   rescued=0    ignored=1   
-cargyll                    : ok=79   changed=2    unreachable=0    failed=0    skipped=19   rescued=0    ignored=1   
-dalt                       : ok=79   changed=2    unreachable=0    failed=0    skipped=19   rescued=0    ignored=1   
-erenford                   : ok=59   changed=2    unreachable=0    failed=0    skipped=26   rescued=0    ignored=1   
-fenn                       : ok=59   changed=2    unreachable=0    failed=0    skipped=26   rescued=0    ignored=1   
-gardener                   : ok=60   changed=2    unreachable=0    failed=0    skipped=25   rescued=0    ignored=1   
-harlton                    : ok=59   changed=2    unreachable=0    failed=0    skipped=26   rescued=0    ignored=1   
-inchfield                  : ok=59   changed=2    unreachable=0    failed=0    skipped=26   rescued=0    ignored=1   
-jast                       : ok=71   changed=3    unreachable=0    failed=0    skipped=14   rescued=0    ignored=1   
-karstark                   : ok=60   changed=2    unreachable=0    failed=0    skipped=25   rescued=0    ignored=1   
-lipps                      : ok=60   changed=2    unreachable=0    failed=0    skipped=25   rescued=0    ignored=1   
-localhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-velaryon                   : ok=60   changed=2    unreachable=0    failed=0    skipped=25   rescued=0    ignored=1   
+allyrion                   : ok=51   changed=2    unreachable=0    failed=0    skipped=21   rescued=0    ignored=1
+bettley                    : ok=79   changed=2    unreachable=0    failed=0    skipped=19   rescued=0    ignored=1
+cargyll                    : ok=79   changed=2    unreachable=0    failed=0    skipped=19   rescued=0    ignored=1
+dalt                       : ok=79   changed=2    unreachable=0    failed=0    skipped=19   rescued=0    ignored=1
+erenford                   : ok=59   changed=2    unreachable=0    failed=0    skipped=26   rescued=0    ignored=1
+fenn                       : ok=59   changed=2    unreachable=0    failed=0    skipped=26   rescued=0    ignored=1
+gardener                   : ok=60   changed=2    unreachable=0    failed=0    skipped=25   rescued=0    ignored=1
+harlton                    : ok=59   changed=2    unreachable=0    failed=0    skipped=26   rescued=0    ignored=1
+inchfield                  : ok=59   changed=2    unreachable=0    failed=0    skipped=26   rescued=0    ignored=1
+jast                       : ok=71   changed=3    unreachable=0    failed=0    skipped=14   rescued=0    ignored=1
+karstark                   : ok=60   changed=2    unreachable=0    failed=0    skipped=25   rescued=0    ignored=1
+lipps                      : ok=60   changed=2    unreachable=0    failed=0    skipped=25   rescued=0    ignored=1
+localhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+velaryon                   : ok=60   changed=2    unreachable=0    failed=0    skipped=25   rescued=0    ignored=1
 ```
-
-## Key Lessons Learned
-
-1. **Infrastructure and Testing Issues Can Intertwine**: What appeared to be test framework problems actually revealed critical infrastructure issues (expired certificates).
-
-2. **Test Framework Reliability is Critical**: Unreliable tests mask real problems and create false confidence in system health.
-
-3. **Gradual Improvement Approach**: Fixing issues systematically, one at a time, allows for proper root cause analysis.
-
-4. **Certificate Management Complexity**: Kubernetes uses its own PKI separate from Step-CA, requiring different renewal procedures.
-
-5. **Service Binding Assumptions**: Tests must account for actual service binding addresses rather than assuming localhost.
-
-## Future Considerations
-
-While we successfully fixed the immediate issues, this experience highlights the need for:
-
-- **Automated Kubernetes certificate monitoring** and renewal
-- **Comprehensive test framework validation** before deployment
-- **Clear separation** between infrastructure issues and test framework issues
-- **Better error reporting** to distinguish between different failure types
-
-The investment in a robust, reliable test framework pays dividends in operational confidence and faster problem resolution.
