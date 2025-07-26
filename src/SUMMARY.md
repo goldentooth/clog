@@ -64,3 +64,4 @@
 - [Prometheus Node Exporter Migration: From Kubernetes to Native](./062_prometheus_node_exporter_migration.md)
 - [Authelia Authentication Infrastructure](./063_authelia_authentication_infrastructure.md)
 - [MCP Server Implementation: Bridging AI and Infrastructure](./064_mcp_server_implementation.md)
+- [Ceph CSI: Bridging Distributed Storage to Kubernetes](./065_ceph_csi_kubernetes_integration.md)
