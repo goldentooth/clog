@@ -62,3 +62,5 @@
 - [Certificate Renewal Debugging Odyssey](./060_certificate_renewal_debugging_odyssey.md)
 - [Nextflow Workflow Management System](./061_nextflow_installation.md)
 - [Prometheus Node Exporter Migration: From Kubernetes to Native](./062_prometheus_node_exporter_migration.md)
+- [Authelia Authentication Infrastructure](./063_authelia_authentication_infrastructure.md)
+- [MCP Server Implementation: Bridging AI and Infrastructure](./064_mcp_server_implementation.md)
