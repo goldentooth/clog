@@ -65,3 +65,4 @@
 - [Authelia Authentication Infrastructure](./063_authelia_authentication_infrastructure.md)
 - [MCP Server Implementation: Bridging AI and Infrastructure](./064_mcp_server_implementation.md)
 - [Ceph CSI: Bridging Distributed Storage to Kubernetes](./065_ceph_csi_kubernetes_integration.md)
+- [Storage Architecture Revolution: From Ceph Complexity to SeaweedFS + Longhorn Harmony](./066_storage_architecture_revolution.md)
