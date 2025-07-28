@@ -348,11 +348,11 @@ parameters:
 The deployed SeaweedFS cluster delivered exceptional performance improvements over our previous Ceph implementation:
 
 ### Memory Utilization Comparison
-| Component | Ceph | SeaweedFS | Improvement |
-|-----------|------|-----------|-------------|
-| Per-node base memory | 1.2-1.6GB | 600MB | 50-75% reduction |
-| Total cluster memory | 3.6-4.8GB | 1.8GB | 62% reduction |
-| Available for workloads | 5.2-6.4GB | 10.2GB | 60-95% increase |
+| Component               | Ceph      | SeaweedFS | Improvement      |
+| ----------------------- | --------- | --------- | ---------------- |
+| Per-node base memory    | 1.2-1.6GB | 600MB     | 50-75% reduction |
+| Total cluster memory    | 3.6-4.8GB | 1.8GB     | 62% reduction    |
+| Available for workloads | 5.2-6.4GB | 10.2GB    | 60-95% increase  |
 
 ### Operational Metrics
 ```bash
@@ -360,7 +360,7 @@ The deployed SeaweedFS cluster delivered exceptional performance improvements ov
 kubectl get pods -n seaweedfs
 # NAME                                    READY   STATUS    RESTARTS
 # seaweedfs-master-0                      1/1     Running   0
-# seaweedfs-master-1                      1/1     Running   0  
+# seaweedfs-master-1                      1/1     Running   0
 # seaweedfs-master-2                      1/1     Running   0
 # seaweedfs-volume-0                      1/1     Running   0
 # seaweedfs-volume-1                      1/1     Running   0
@@ -394,56 +394,3 @@ kubectl get pvc test-rwx
 # NAME       STATUS   VOLUME                 CAPACITY   ACCESS MODES   STORAGECLASS          AGE
 # test-rwx   Bound    pvc-abc123...          1Gi        RWX            seaweedfs-storage-rwx 30s
 ```
-
-## Technical Lessons Learned
-
-This implementation journey yielded several critical insights for future distributed storage deployments on ARM64 hardware:
-
-### Container Entrypoint Mastery
-1. **Read Help Text First**: Always verify flag compatibility by examining actual binary help output, not documentation
-2. **Minimize Arguments**: Complex argument structures often indicate misunderstanding of container design
-3. **Environment Over Flags**: Use environment variables for configuration when possible to avoid flag parsing issues
-
-### ARM64 Deployment Strategy
-1. **Verify Multi-Arch Images**: Always confirm ARM64 image availability before deployment planning
-2. **Version Pinning Critical**: ARM64 images may lag behind x86 releases; pin working versions
-3. **Memory Constraints Drive Design**: ARM64 Pi hardware demands aggressive memory optimization in all components
-
-### CSI Driver Complexity
-1. **RBAC Evolution**: CSI drivers require extensive permissions that evolve with Kubernetes versions
-2. **Environment Variables Matter**: Missing environment variables cause subtle failures that are difficult to debug
-3. **Version Compatibility**: CSI driver versions must match Kubernetes cluster capabilities
-
-### Debugging Methodology
-1. **Systematic Flag Validation**: Test each flag individually rather than deploying complex configurations
-2. **Progressive Permission Addition**: Add RBAC permissions incrementally based on specific error messages
-3. **Container Introspection**: Use kubectl exec to examine running containers and validate configurations
-
-## Future Optimization Opportunities
-
-While the current SeaweedFS deployment meets all functional requirements, several optimization opportunities remain:
-
-### Enhanced Monitoring
-- Implement custom metrics for Pi-specific resource constraints
-- Add alerting for memory pressure approaching dangerous levels
-- Create automated scaling responses for volume storage demand
-
-### Backup Integration
-- Integrate with existing HashiCorp Vault for backup encryption
-- Implement automated disaster recovery testing
-- Create cross-region backup replication to GPU storage
-
-### Performance Tuning
-- Optimize filer caching for specific workload patterns
-- Implement volume server rebalancing for improved performance
-- Fine-tune Go garbage collection for Pi memory characteristics
-
-## Conclusion: Distributed Storage Victory
-
-The SeaweedFS cluster implementation represents a significant architectural achievement for the Goldentooth infrastructure. By systematically debugging container entrypoint issues, resolving ARM64 compatibility challenges, and optimizing for Pi hardware constraints, we delivered a production-ready distributed storage system that provides the ReadWriteMany capabilities our hybrid storage architecture required.
-
-The journey from deployment failure to production success highlighted the complexity hidden beneath seemingly straightforward distributed storage systems. Each debugging phase - from container entrypoints to CSI driver permissions - revealed layers of technical depth that required systematic investigation and resolution.
-
-Most importantly, the deployed SeaweedFS cluster dramatically reduces memory pressure on our Pi nodes while delivering superior functionality compared to our previous Ceph implementation. With 60-95% more memory available for workloads and native ReadWriteMany support through the CSI driver, we've achieved the foundational storage capabilities needed for advanced Kubernetes workloads on ARM64 hardware.
-
-The success of this implementation validates our hybrid storage architecture approach and provides a solid foundation for future distributed applications requiring shared storage capabilities across multiple pods and nodes.

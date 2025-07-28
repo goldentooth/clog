@@ -407,24 +407,24 @@ spec:
       - |
         set -e
         echo "=== Ceph RBD CSI Test Started at $(date) ==="
-        
+
         # Install required tools
         apt-get update && apt-get install -y fio curl wget
-        
+
         # Basic functionality tests
         echo "Hello from Goldentooth Ceph CSI!" > /mnt/test-file.txt
         cat /mnt/test-file.txt
-        
+
         # Performance testing with fio
         echo "=== Performance Test (Sequential Write) ==="
         fio --name=seqwrite --rw=write --bs=1M --size=100M --numjobs=1 \
             --filename=/mnt/test-fio --direct=1 --sync=1 \
             --time_based --runtime=30s
-        
+
         echo "=== Performance Test (Sequential Read) ==="
         fio --name=seqread --rw=read --bs=1M --size=100M --numjobs=1 \
             --filename=/mnt/test-fio --direct=1 --time_based --runtime=30s
-        
+
         # Data integrity verification
         echo "=== Data Integrity Test ==="
         dd if=/dev/urandom of=/mnt/integrity-test bs=1M count=10
@@ -432,14 +432,14 @@ spec:
         sync
         sleep 2
         READ_CHECKSUM=$(md5sum /mnt/integrity-test | awk '{print $1}')
-        
+
         if [ "$WRITE_CHECKSUM" = "$READ_CHECKSUM" ]; then
           echo "✅ Data integrity test PASSED"
         else
           echo "❌ Data integrity test FAILED"
           exit 1
         fi
-        
+
         echo "=== Test completed successfully at $(date) ==="
     volumeMounts:
     - name: ceph-storage
@@ -504,7 +504,7 @@ All checksum tests passed consistently across multiple test runs, confirming rel
 
 After deployment, we observed natural usage patterns emerge:
 
-**ceph-rbd (Default)**: 
+**ceph-rbd (Default)**:
 - Used by 80% of workloads
 - Standard persistence for databases, config storage
 - Automatic cleanup on pod deletion
@@ -552,30 +552,3 @@ kubectl get pv,pvc
 # Check Ceph cluster health
 goldentooth command_root fenn "cephadm shell -- ceph -s"
 ```
-
-## Future Enhancements
-
-The CSI integration provides a foundation for several advanced features:
-
-**1. Volume Snapshots**: Ceph's RBD snapshot capabilities can be exposed through CSI for backup and cloning operations.
-
-**2. Volume Cloning**: Fast volume duplication for dev/test environments.
-
-**3. Storage Quotas**: Per-namespace or per-application storage limits.
-
-**4. Performance Monitoring**: Integration with Ceph's native monitoring for storage-specific metrics.
-
-**5. Multi-Pool Strategies**: Additional storage classes for different performance or durability requirements.
-
-## Impact on Cluster Architecture
-
-This implementation represents a significant milestone in Goldentooth's evolution from a simple Kubernetes cluster to a production-ready infrastructure platform. With distributed, persistent storage now available, we can support:
-
-- **Stateful Applications**: Databases, message queues, and other persistent workloads
-- **GitOps Workflows**: Persistent storage for Argo CD repositories and application data
-- **Development Environments**: Full-featured development stacks with persistent file systems
-- **Data Processing Pipelines**: Storage for intermediate results and final outputs
-
-The combination of our existing HashiCorp stack (Consul, Nomad, Vault) with Kubernetes persistent storage creates a hybrid orchestration platform capable of handling diverse workload requirements while maintaining the operational simplicity that makes Goldentooth manageable on Raspberry Pi hardware.
-
-**1.4 TiB of distributed, fault-tolerant, automatically provisioned storage** - now seamlessly integrated with Kubernetes workloads and accessible through standard PVC semantics.
