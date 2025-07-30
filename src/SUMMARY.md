@@ -64,6 +64,3 @@
 - [Prometheus Node Exporter II](./062_prometheus_node_exporter_migration.md)
 - [Authelia](./063_authelia_authentication_infrastructure.md)
 - [MCP Server](./064_mcp_server_implementation.md)
-- [Ceph CSI](./065_ceph_csi_kubernetes_integration.md)
-- [Ceph -> SeaweedFS + Longhorn](./066_storage_architecture_revolution.md)
-- [SeaweedFS](./067_seaweedfs_cluster_implementation.md)
