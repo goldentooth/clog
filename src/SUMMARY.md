@@ -64,3 +64,4 @@
 - [Prometheus Node Exporter II](./062_prometheus_node_exporter_migration.md)
 - [Authelia](./063_authelia_authentication_infrastructure.md)
 - [MCP Server](./064_mcp_server_implementation.md)
+- [SeaweedFS Distributed Storage](./065_seaweedfs_distributed_storage.md)
