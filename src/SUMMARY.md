@@ -65,3 +65,4 @@
 - [Authelia](./063_authelia_authentication_infrastructure.md)
 - [MCP Server](./064_mcp_server_implementation.md)
 - [SeaweedFS Distributed Storage](./065_seaweedfs_distributed_storage.md)
+- [Step-CA Certificate Monitoring](./066_step_ca_certificate_monitoring.md)
