@@ -66,3 +66,4 @@
 - [MCP Server](./064_mcp_server_implementation.md)
 - [SeaweedFS Distributed Storage](./065_seaweedfs_distributed_storage.md)
 - [Step-CA Certificate Monitoring](./066_step_ca_certificate_monitoring.md)
+- [HAProxy Dataplane API Integration](./067_haproxy_dataplane_api.md)
