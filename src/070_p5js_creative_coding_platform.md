@@ -96,7 +96,7 @@ The preview generation system uses Puppeteer for sophisticated browser automatio
 
 **Technology Stack**
 - **Puppeteer v21.5.0**: Headless Chrome automation
-- **GitHub Actions**: CI/CD execution environment  
+- **GitHub Actions**: CI/CD execution environment
 - **Node.js**: Runtime environment for capture scripts
 - **Canvas Capture**: Direct p5.js canvas element extraction
 
@@ -200,7 +200,7 @@ Each sketch includes rich metadata for gallery display and capture configuration
 A educational demonstration of machine learning fundamentals:
 
 **Purpose**: Interactive visualization of gradient descent optimization
-**Features**: 
+**Features**:
 - Real-time data point plotting
 - Animated regression line fitting
 - Loss function visualization
@@ -378,76 +378,3 @@ kubectl rollout restart deployment/p5js-sketches -n p5js-sketches
 # Argo CD sync status
 kubectl get application gitops-repo-p5js-sketches -n argocd
 ```
-
-## Future Enhancements
-
-### Technical Roadmap
-
-**Storage Evolution**:
-- **SeaweedFS Migration**: Distributed storage for multi-replica deployment
-- **CDN Integration**: CloudFront distribution for global access
-- **Asset Optimization**: Automated image compression and format conversion
-
-**Gallery Features**:
-- **Search Interface**: Full-text search across sketch metadata
-- **Tagging System**: Categorical organization of sketches
-- **User Ratings**: Community feedback and popularity metrics
-- **Social Features**: Comments and sharing capabilities
-
-**Development Workflow**:
-- **IDE Integration**: Direct sketch upload from development environments
-- **Version Control**: Git-based sketch versioning with branching
-- **Collaborative Editing**: Multi-user sketch development
-- **Template System**: Boilerplate sketches for common patterns
-
-### Creative Computing Vision
-
-The p5js-sketches platform establishes Goldentooth as a foundation for creative computing exploration:
-
-**Educational Applications**:
-- **Algorithm Visualization**: Interactive demonstrations of CS concepts
-- **Mathematical Art**: Geometric and fractal explorations
-- **Data Visualization**: Interactive charts and infographics
-- **Simulation Platform**: Physics, biology, and social system modeling
-
-**Artistic Expression**:
-- **Generative Art**: Procedural and algorithmic art creation
-- **Interactive Installations**: Web-based interactive experiences
-- **Audio-Visual**: p5.js sound library integration for multimedia
-- **Virtual Reality**: Future WebXR integration for immersive experiences
-
-## Performance and Scalability
-
-### Current Metrics
-
-**Resource Utilization**:
-- **Memory Usage**: 32-64Mi per replica (Pi-optimized)
-- **CPU Usage**: 50-100m per replica (efficient static serving)
-- **Storage**: 10Gi local-path volume (room for hundreds of sketches)
-- **Network**: MetalLB LoadBalancer handling external traffic
-
-**Constraints and Limitations**:
-- **Single Replica**: ReadWriteOnce storage limits horizontal scaling
-- **Node Affinity**: Tied to specific node due to local storage
-- **Backup Strategy**: Manual backup required for content preservation
-
-### Scalability Path
-
-**Near-Term Improvements**:
-- **SeaweedFS Migration**: Enable multi-replica deployment
-- **Horizontal Scaling**: Load balance across multiple nginx instances
-- **Geographic Distribution**: Multi-cluster deployment for global access
-
-**Long-Term Vision**:
-- **Edge Computing**: Sketch execution at edge nodes
-- **Real-Time Collaboration**: Multi-user sketch editing
-- **AI Integration**: Machine learning-assisted sketch generation
-- **Mobile Optimization**: Progressive web app for mobile devices
-
-## Conclusion
-
-The p5js-sketches platform represents a successful integration of creative computing with modern cloud-native infrastructure. By combining artistic expression with DevOps excellence, it demonstrates how Goldentooth can serve diverse computational needs while maintaining operational efficiency and security standards.
-
-The platform's automated preview generation, GitOps deployment workflow, and Kubernetes-native architecture establish a foundation for creative exploration that scales with the cluster's capabilities. As both a technical achievement and an artistic canvas, p5js-sketches embodies the interdisciplinary nature of modern computational creativity.
-
-The project showcases Goldentooth's versatility in supporting applications beyond traditional enterprise workloads, proving that a Raspberry Pi cluster can serve as both a robust infrastructure platform and a creative computing laboratory. This dual-purpose capability positions Goldentooth as a comprehensive platform for education, research, and artistic expression in the computational arts.
