@@ -69,3 +69,4 @@
 - [HAProxy Dataplane API Integration](./067_haproxy_dataplane_api.md)
 - [Dynamic Service Discovery with Consul + HAProxy](./068_dynamic_service_discovery_consul_haproxy.md)
 - [SeaweedFS Pi 5 Migration and CSI Integration](./069_seaweedfs_pi5_migration.md)
+- [P5.js Creative Coding Platform](./070_p5js_creative_coding_platform.md)
