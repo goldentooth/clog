@@ -9,7 +9,7 @@ After the successful initial SeaweedFS deployment on the Pi 4B nodes (fenn and k
 The four new Pi 5 nodes represent a massive upgrade in storage capacity and performance:
 
 - **Manderly** (10.4.0.22) - 1TB NVMe SSD via PCIe
-- **Norcross** (10.4.0.23) - 1TB NVMe SSD via PCIe  
+- **Norcross** (10.4.0.23) - 1TB NVMe SSD via PCIe
 - **Oakheart** (10.4.0.24) - 1TB NVMe SSD via PCIe
 - **Payne** (10.4.0.25) - 1TB NVMe SSD via PCIe
 
@@ -19,7 +19,7 @@ The four new Pi 5 nodes represent a massive upgrade in storage capacity and perf
 
 The Pi 5 + NVMe combination delivers substantial improvements:
 - **Storage Interface**: PCIe NVMe vs. USB 3.0 SSD
-- **Sequential Read/Write**: ~400MB/s vs. ~100MB/s  
+- **Sequential Read/Write**: ~400MB/s vs. ~100MB/s
 - **Random IOPS**: 10x improvement for small file operations
 - **CPU Performance**: Cortex-A76 vs. Cortex-A72 cores
 - **Memory**: 8GB LPDDR4X vs. 4GB on old nodes
@@ -51,7 +51,7 @@ This design provides proper Raft consensus with an odd number of masters while u
 The initial migration attempt using all four nodes as masters immediately revealed a fundamental issue:
 
 ```
-F0804 21:16:33.246267 master.go:285 Only odd number of masters are supported: 
+F0804 21:16:33.246267 master.go:285 Only odd number of masters are supported:
 [10.4.0.22:9333 10.4.0.23:9333 10.4.0.24:9333 10.4.0.25:9333]
 ```
 
@@ -104,7 +104,7 @@ ExecStart=/usr/local/bin/weed master \
     -ip=10.4.0.22 \                    # <-- This caused duplicates
     -raftHashicorp=true
 
-# Clean configuration  
+# Clean configuration
 ExecStart=/usr/local/bin/weed master \
     -port=9333 \
     -mdir=/mnt/seaweedfs-nvme/master \
@@ -264,7 +264,7 @@ kubectl exec test-pod -- ls -la /data/
 SeaweedFS metrics integrate with the existing Goldentooth observability stack:
 
 - **Prometheus**: Master and volume server metrics collection
-- **Grafana**: Storage capacity and performance dashboards  
+- **Grafana**: Storage capacity and performance dashboards
 - **Consul**: Service discovery and health monitoring
 - **Step-CA**: TLS certificate management for secure communications
 
@@ -272,13 +272,13 @@ SeaweedFS metrics integrate with the existing Goldentooth observability stack:
 
 ### Storage Capacity Comparison
 
-| Metric | Old Cluster (Pi 4B) | New Cluster (Pi 5) | Improvement |
-|--------|--------------------|--------------------|-------------|
-| Total Capacity | ~1TB | ~3.6TB | 3.6x |
-| Node Count | 2 | 4 | 2x |
-| Per-Node Storage | 500GB | 1TB | 2x |
-| Storage Interface | USB 3.0 SSD | PCIe NVMe | PCIe speed |
-| Fault Tolerance | Single failure | Multi-failure | Higher |
+| Metric            | Old Cluster (Pi 4B) | New Cluster (Pi 5) | Improvement |
+| ----------------- | ------------------- | ------------------ | ----------- |
+| Total Capacity    | ~1TB                | ~3.6TB             | 3.6x        |
+| Node Count        | 2                   | 4                  | 2x          |
+| Per-Node Storage  | 500GB               | 1TB                | 2x          |
+| Storage Interface | USB 3.0 SSD         | PCIe NVMe          | PCIe speed  |
+| Fault Tolerance   | Single failure      | Multi-failure      | Higher      |
 
 ### Architectural Benefits
 
@@ -287,40 +287,3 @@ SeaweedFS metrics integrate with the existing Goldentooth observability stack:
 - **Performance Scaling**: NVMe storage handles high-IOPS workloads
 - **Kubernetes Native**: CSI integration enables GitOps storage workflows
 - **Future Ready**: Foundation for S3 gateway and advanced SeaweedFS features
-
-## Lessons Learned
-
-### Critical Insights
-
-1. **Raft Mathematics Matter**: Distributed consensus requires odd numbers of participants
-2. **Template Hygiene**: Dynamic configuration prevents hardcoded limitations  
-3. **Network Bridging**: Kubernetes and bare metal require DNS resolution strategies
-4. **Service Parameters**: Seemingly innocent flags like `-ip=` can cause clustering issues
-5. **Migration Benefits**: Sometimes rebuilding is cleaner than upgrading in place
-
-### Operational Wisdom
-
-The SeaweedFS Pi 5 migration demonstrates that major infrastructure changes can be executed successfully with proper planning, testing, and understanding of distributed systems fundamentals. The resulting architecture provides Goldentooth with enterprise-grade distributed storage that scales with the cluster's growing computational needs.
-
-The combination of Raspberry Pi 5 hardware, NVMe storage, and SeaweedFS distributed architecture creates a powerful foundation for data-intensive workloads while maintaining the cost-effectiveness and energy efficiency that defines the Goldentooth philosophy.
-
-## Command Integration
-
-SeaweedFS operations on the new architecture integrate seamlessly with goldentooth tooling:
-
-```bash
-# Cluster status monitoring
-goldentooth command manderly,norcross,oakheart,payne "systemctl status seaweedfs-*"
-
-# Storage utilization across all nodes
-goldentooth command manderly,norcross,oakheart,payne "df -h /mnt/seaweedfs-nvme"
-
-# Leadership and consensus monitoring
-goldentooth command manderly "curl -s http://localhost:9333/cluster/status | jq"
-
-# CSI volume verification
-kubectl get pvc,pv | grep seaweedfs
-kubectl describe storageclass seaweedfs-storage
-```
-
-This migration establishes SeaweedFS as a cornerstone of Goldentooth's storage architecture, providing the distributed file storage foundation needed for advanced computational workloads while maintaining the reliability and performance standards expected of a production Kubernetes cluster.
