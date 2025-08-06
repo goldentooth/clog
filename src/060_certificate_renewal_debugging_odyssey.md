@@ -178,33 +178,3 @@ The test improvements included intelligent service filtering:
 ```
 
 This eliminated false positives where tests were failing for missing certificates on nodes where services weren't supposed to be running.
-
-## Lessons Learned
-
-This certificate renewal odyssey taught several important lessons:
-
-### 1. **Observability is Critical**
-Without proper monitoring, the certificate failure was nearly invisible. The renewal system appeared to be working because timers were active and services were running - but certificates were silently expiring.
-
-### 2. **Test Infrastructure Pays Dividends**
-The certificate canary with 15-minute lifetimes allowed rapid iteration and debugging. What could have taken days to test with 24-hour certificates was resolved in hours.
-
-### 3. **Configuration Flexibility Matters**
-Making the cert-renewer system configurable via environment variables provided the flexibility to tune renewal behavior per service without breaking the base template.
-
-### 4. **Systems Integration is Complex**
-The interaction between certificate lifetimes, renewal thresholds, timer intervals, and network reliability created edge cases that weren't obvious during initial implementation.
-
-### 5. **Comprehensive Testing Reveals Edge Cases**
-Building node-aware certificate tests revealed issues with service deployment assumptions and helped create more robust validation.
-
-## Current Status
-
-With these improvements in place, the certificate renewal system is now:
-
-- **Robust**: Environment variable configuration allows per-service tuning
-- **Observable**: Comprehensive dashboards and alerting prevent silent failures
-- **Testable**: Certificate canary provides rapid feedback on renewal health
-- **Validated**: Automated tests ensure certificates are present and valid on appropriate nodes
-
-The certificate canary continues to renew every 15 minutes like clockwork, providing confidence that the production certificates with 24-hour lifetimes will also renew successfully.

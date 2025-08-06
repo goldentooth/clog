@@ -216,26 +216,3 @@ root@bramble-01:~# ssh-keygen -L -f /etc/step/certs/ssh_host.key-cert.pub
 ```
 
 Look at that! The certificate is valid for exactly 24 hours and includes all the names I might use to connect to this host.
-
-## Lessons Learned
-
-This whole setup taught me a few things:
-
-1. **SSH certificates are underutilized** - This technology has been around for years but hardly anyone uses it. It's a shame because it solves real problems.
-
-2. **Short-lived certificates are the way** - Daily renewal might seem extreme, but with automation it's invisible. And the security benefits are real.
-
-3. **Step-CA continues to impress** - Every time I dig deeper into this tool, I find more useful features. The fact that it handles both TLS and SSH certificates with the same infrastructure is brilliant.
-
-4. **Ansible makes this manageable** - Setting this up manually on each node would be a nightmare. With Ansible, it's just `ansible-playbook playbooks/setup_ssh_certificates.yaml` and done.
-
-## Future Improvements
-
-There are a few things I might add later:
-
-- **Certificate templates** - Step-CA supports templates that can add more complex logic to certificate issuance
-- **Hardware key support** - You can store SSH certificates on hardware tokens like YubiKeys
-- **Audit logging** - Every certificate issuance is logged by Step-CA, which could feed into our observability stack
-- **User provisioning** - Right now I'm only handling root and my user. A more complete solution would handle arbitrary users
-
-But for now, this works great. No more SSH key management, no more host key warnings, just secure, certificate-based authentication across the cluster.
