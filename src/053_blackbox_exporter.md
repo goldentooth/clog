@@ -1,4 +1,4 @@
-# Chapter 54: Prometheus Blackbox Exporter - Synthetic Monitoring for the Cluster
+# Prometheus Blackbox Exporter
 
 ## The Observability Gap
 
@@ -147,19 +147,3 @@ Now when something breaks, we'll know immediately:
 - **`probe_ssl_earliest_cert_expiry`** warns about certificate expiration
 
 This complements our existing infrastructure monitoring perfectly. We can see both "the server is running" (node exporter) and "the service actually works" (blackbox exporter).
-
-## Command Reference
-
-```bash
-# Deploy blackbox exporter
-goldentooth setup_blackbox_exporter
-
-# Check service status
-goldentooth command allyrion "systemctl status blackbox-exporter"
-
-# Test a specific probe manually
-curl "http://allyrion:9115/probe?target=http://localhost:9090&module=http_2xx"
-
-# View all blackbox targets in Prometheus
-curl "http://allyrion:9090/api/v1/targets" | grep blackbox
-```

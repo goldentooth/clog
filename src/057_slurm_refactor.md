@@ -4,6 +4,8 @@
 
 After the initial Slurm deployment (documented in chapter 032), the cluster faced performance and reliability challenges that required significant refactoring. The monolithic setup role was taking 10+ minutes to execute and had idempotency issues, while memory configuration mismatches caused node validation failures.
 
+It's my fault - it's because of my laziness. So this chapter is essentially me saying "yeah, I did a shitty thing, and so now I have to fix it."
+
 ## Problems Identified
 
 ### Performance Issues

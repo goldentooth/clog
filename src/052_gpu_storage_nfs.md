@@ -199,5 +199,3 @@ The implementation provides:
 - **Clean separation** between Pi cluster and GPU node architectures
 
 Data written from any node is immediately visible across the cluster, enabling seamless Pi-GPU workflows for machine learning datasets, model artifacts, and computational results.
-
-This completes another piece of the goldentooth infrastructure puzzle - high-performance shared storage bridging the Pi cluster and GPU compute resources.

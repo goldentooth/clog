@@ -1,4 +1,4 @@
-# Prometheus Slurm Exporter Integration
+# Prometheus Slurm Exporter
 
 ## Overview
 

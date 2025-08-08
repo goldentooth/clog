@@ -107,7 +107,7 @@ ReadWritePaths=/mnt/seaweedfs-ssd
 Volume servers automatically track the current cluster leader:
 
 ```systemd
-[Unit] 
+[Unit]
 Description=SeaweedFS Volume Server
 After=network.target seaweedfs-master.service
 Wants=network.target
@@ -183,7 +183,7 @@ Returns cluster topology, current leader, and peer status.
 watch -n 1 'curl -s http://fenn:9333/cluster/status | jq .Leader'
 ```
 
-### Volume Server Status  
+### Volume Server Status
 ```bash
 curl http://fenn:8080/status
 ```
@@ -228,28 +228,3 @@ goldentooth command fenn "watch -n 1 'curl -s http://localhost:9333/cluster/stat
 # Monitor storage utilization
 goldentooth command fenn,karstark "df -h /mnt/seaweedfs-ssd"
 ```
-
-## HA Implementation Details
-
-### Leadership Election Behavior
-The 2-node HA cluster exhibits healthy leadership flapping:
-- **3-second rotation cycles**: Normal behavior ensuring both nodes remain active
-- **Load balancing**: Natural request distribution through leadership changes  
-- **Fault detection**: Rapid identification of failed masters
-- **Split-brain prevention**: Raft consensus prevents conflicting operations
-
-### Demonstrated Fault Tolerance
-- **Master failover**: Tested stopping/starting master services
-- **Network partition recovery**: Cluster reformation after connectivity issues
-- **Volume server resilience**: Automatic reconnection to new leaders
-- **Zero-downtime operations**: Continuous service during leadership transitions
-
-### Ready for Integration
-The HA foundation enables advanced features:
-- **Consul integration**: Service discovery and health monitoring ready
-- **Step-CA certificates**: TLS encryption preparation complete
-- **Prometheus metrics**: Monitoring integration prepared
-- **Filer service**: POSIX filesystem interface groundwork established
-- **S3 gateway**: Amazon S3-compatible API endpoint foundation ready
-
-This SeaweedFS high availability cluster provides Goldentooth with resilient, fault-tolerant object storage that complements the existing Ceph block storage. The automatic failover capabilities and distributed consensus ensure continuous availability for applications requiring reliable file storage, while the leadership rotation naturally balances load across the cluster nodes.

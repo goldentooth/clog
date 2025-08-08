@@ -1,6 +1,6 @@
 # Expanding the Kubernetes Cluster
 
-With the Goldentooth cluster continuing to evolve, it was time to bring two more nodes into the Kubernetes fold. Karstark and Lipps had been sitting on the sidelines, contributing to other cluster services but not yet participating in the Kubernetes orchestration layer.
+With the Goldentooth cluster continuing to evolve, it was time to bring two more nodes into the Kubernetes fold... Karstark and Lipps, two Raspberry Pi 4Bs (4GB) that were just kinda sitting around.
 
 ## The Current State
 

@@ -192,25 +192,3 @@ We adopted a principle of **separating certificate presence from validity testin
 ```
 
 This approach provides better debugging information and clearer failure isolation.
-
-## Final Results
-
-After implementing all fixes, the comprehensive test suite achieved **100% success across all cluster nodes**:
-
-```bash
-PLAY RECAP *********************************************************************
-allyrion                   : ok=51   changed=2    unreachable=0    failed=0    skipped=21   rescued=0    ignored=1
-bettley                    : ok=79   changed=2    unreachable=0    failed=0    skipped=19   rescued=0    ignored=1
-cargyll                    : ok=79   changed=2    unreachable=0    failed=0    skipped=19   rescued=0    ignored=1
-dalt                       : ok=79   changed=2    unreachable=0    failed=0    skipped=19   rescued=0    ignored=1
-erenford                   : ok=59   changed=2    unreachable=0    failed=0    skipped=26   rescued=0    ignored=1
-fenn                       : ok=59   changed=2    unreachable=0    failed=0    skipped=26   rescued=0    ignored=1
-gardener                   : ok=60   changed=2    unreachable=0    failed=0    skipped=25   rescued=0    ignored=1
-harlton                    : ok=59   changed=2    unreachable=0    failed=0    skipped=26   rescued=0    ignored=1
-inchfield                  : ok=59   changed=2    unreachable=0    failed=0    skipped=26   rescued=0    ignored=1
-jast                       : ok=71   changed=3    unreachable=0    failed=0    skipped=14   rescued=0    ignored=1
-karstark                   : ok=60   changed=2    unreachable=0    failed=0    skipped=25   rescued=0    ignored=1
-lipps                      : ok=60   changed=2    unreachable=0    failed=0    skipped=25   rescued=0    ignored=1
-localhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-velaryon                   : ok=60   changed=2    unreachable=0    failed=0    skipped=25   rescued=0    ignored=1
-```

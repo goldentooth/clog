@@ -149,7 +149,7 @@ I created a comprehensive `test_certificate_renewal` role that:
 
 ### Smart Service Filtering
 
-The test improvements included intelligent service filtering:
+The test improvements included "intelligent" service filtering:
 
 ```yaml
 # Filter services to only those deployed on this node

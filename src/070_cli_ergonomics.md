@@ -1,4 +1,4 @@
-# Goldentooth CLI Ergonomics Revolution
+# CLI Ergonomics
 
 The Goldentooth CLI underwent a fundamental transformation, evolving from a verbose, Ansible-heavy interface into a sleek, ergonomic command suite optimized for both human operators and programmatic consumption. This architectural revolution introduced direct SSH operations, intelligent MOTD systems, distributed computing integration, and performance improvements that deliver 3x faster execution times.
 
@@ -288,79 +288,4 @@ goldentooth dllama_start_workers
 
 # Obvious interactive access
 goldentooth shell hostname
-```
-
-### Reduced Cognitive Load
-Simplified mental model for cluster operations:
-
-**Before**: "Is this an Ansible playbook or ad-hoc command?"
-**After**: "Do I need configuration management (Ansible) or direct access (SSH)?"
-
-### Programmatic Consumption
-Clean output designed for automation and AI consumption:
-
-**Features**:
-- No emoji or decorative output in command mode
-- Consistent formatting for parsing
-- Proper exit codes for scripting
-- JSON output options where appropriate
-
-## Security Enhancements
-
-### SSH Key Management
-Secure authentication using existing SSH infrastructure:
-
-**Benefits**:
-- Leverages existing SSH certificate authority (Step-CA)
-- No additional authentication mechanisms
-- Consistent security model across all operations
-
-### Audit and Compliance
-Comprehensive logging for security monitoring:
-
-**Features**:
-- All SSH operations logged through standard SSH audit
-- Command history preservation
-- Integration with existing security monitoring systems
-
-## Performance Metrics
-
-### Execution Speed Improvements
-Dramatic performance gains across all operations:
-
-**Benchmark Results**:
-- Single host commands: ~2x faster (reduced Ansible overhead)
-- Multi-host operations: ~3x faster (parallel execution)
-- Interactive access: Instant (direct SSH vs. Ansible setup)
-
-### Resource Utilization
-Optimized resource consumption:
-
-**Benefits**:
-- Reduced memory footprint (no Python/Ansible for simple operations)
-- Lower CPU usage (direct process execution)
-- Improved battery life on management laptops
-
-## Development Workflow Impact
-
-### Faster Development Cycles
-Accelerated cluster development and debugging:
-
-**Improvements**:
-- Instant access to cluster nodes for troubleshooting
-- Rapid iteration on configuration changes
-- Efficient log collection and analysis
-
-### Enhanced Debugging Capabilities
-Superior diagnostic tools:
-
-```bash
-# Quick service status across cluster
-goldentooth command all "systemctl is-failed '*'" | grep -v inactive
-
-# Rapid log collection
-goldentooth cp 'consul_server:/var/log/consul*.log' ./debug-logs/
-
-# Interactive debugging session
-goldentooth shell problematic_node
 ```
