@@ -2,17 +2,9 @@
 
 ## The Problem
 
-While Docker is an excellent container platform, it can conflict with Kubernetes' containerd runtime in subtle and frustrating ways. When Docker is installed on a Kubernetes node, it brings its own version of containerd (`containerd.io`) which can interfere with the standard containerd package that Kubernetes expects.
+I don't know why, and I'm too lazy to dig much into it, but if I install `docker` on any node in the Kubernetes cluster, this conflicts with containerd (`containerd.io`), which causes Kubernetes to shit blood and stop working on that node. Great.
 
-This conflict can manifest in various ways:
-- Container runtime errors
-- Pod scheduling failures
-- Networking issues
-- Version mismatches between Docker's containerd and Kubernetes' expectations
-
-## The Solution
-
-To prevent accidental Docker installations that could break our Kubernetes cluster, we've implemented a cluster-wide APT package block using APT preferences.
+To prevent this, I implemented a clusterwide ban on Docker. I'm recording the details here in case I need to do it again.
 
 ### Implementation
 
