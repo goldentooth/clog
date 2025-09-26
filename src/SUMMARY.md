@@ -69,3 +69,4 @@
 - [SeaweedFS Pi 5 Migration and CSI Integration](./067_seaweedfs_redux.md)
 - [P5.js Creative Coding Platform](./068_p5js_sketches.md)
 - [CLI Ergonomics](./069_cli_ergonomics.md)
+- [Talos](./070_talos.md)
