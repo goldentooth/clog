@@ -72,3 +72,4 @@
 - [Talos](./070_talos.md)
 - [Disk Cleanup](./071_disk_cleanup.md)
 - [MetalLB (again)](./072_metallb.md)
+- [External-DNS (again)](./073_external_dns.md)

@@ -166,3 +166,22 @@ spec:
         kind: Service
         name: podinfo
 ```
+
+With this deployed, I was able to curl podinfo!
+
+```bash
+$ curl http://10.4.11.0/
+{
+  "hostname": "podinfo-6fd9b57958-7sr4v",
+  "version": "6.9.2",
+  "revision": "e86405a8674ecab990d0a389824c7ebbd82973b5",
+  "color": "#34577c",
+  "logo": "https://raw.githubusercontent.com/stefanprodan/podinfo/gh-pages/cuddle_clap.gif",
+  "message": "greetings from podinfo v6.9.2",
+  "goos": "linux",
+  "goarch": "arm64",
+  "runtime": "go1.25.1",
+  "num_goroutine": "8",
+  "num_cpu": "4"
+}
+```
