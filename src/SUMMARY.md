@@ -71,3 +71,4 @@
 - [CLI Ergonomics](./069_cli_ergonomics.md)
 - [Talos](./070_talos.md)
 - [Disk Cleanup](./071_disk_cleanup.md)
+- [MetalLB (again)](./072_metallb.md)
