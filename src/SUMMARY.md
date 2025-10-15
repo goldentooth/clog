@@ -73,3 +73,4 @@
 - [Disk Cleanup](./071_disk_cleanup.md)
 - [MetalLB (again)](./072_metallb.md)
 - [External-DNS (again)](./073_external_dns.md)
+- [Kube-VIP](./074_kube_vip.md)
