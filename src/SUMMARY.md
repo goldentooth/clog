@@ -74,3 +74,4 @@
 - [MetalLB (again)](./072_metallb.md)
 - [External-DNS (again)](./073_external_dns.md)
 - [Kube-VIP](./074_kube_vip.md)
+- [Velaryon Returns: GPU Support in Talos](./075_velaryon_gpu_talos.md)
