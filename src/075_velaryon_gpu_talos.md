@@ -117,3 +117,80 @@ Sat Nov  8 23:28:00 2025
 ```
 
 Perfect! The RTX 2070 Super is ready for GPU workloads.
+
+## Preventing Non-GPU Workloads
+
+Just like in the original setup (see [046_new_server](./046_new_server.md)), I wanted to ensure that only GPU workloads would be scheduled on Velaryon. This prevents regular pods from consuming resources on the expensive GPU node.
+
+Talhelper makes this straightforward with the `nodeTaints` configuration. I simply added it to Velaryon's node config in `talconfig.yaml`:
+
+```yaml
+- hostname: velaryon
+  ipAddress: 10.4.0.30
+  nodeLabels:
+    role: 'gpu'
+  nodeTaints:
+    gpu: "true:NoSchedule"
+```
+
+This gets translated into the appropriate Talos machine configuration, which tells the kubelet to register with this taint when the node first joins the cluster.
+
+### The NodeRestriction Catch
+
+There's an important caveat: due to Kubernetes' NodeRestriction admission controller, worker nodes cannot modify their own taints after they've already registered with the cluster. This is a security feature that prevents nodes from promoting themselves to different roles.
+
+For an existing node (like Velaryon after initial installation), the taint needs to be applied manually via kubectl:
+
+```bash
+kubectl taint nodes velaryon gpu=true:NoSchedule
+```
+
+However, the `nodeTaints` configuration in talconfig.yaml ensures that if Velaryon ever needs to be rebuilt or rejoins the cluster, it will automatically come back with the taint already applied—no manual intervention needed.
+
+### Verifying the Taint
+
+```bash
+$ kubectl describe node velaryon | grep Taints
+Taints:             gpu=true:NoSchedule
+```
+
+Perfect! Now only pods that explicitly tolerate the GPU taint can be scheduled on Velaryon.
+
+## Using the GPU in Pods
+
+To schedule a pod on Velaryon with GPU access, the pod spec needs two things:
+
+1. **RuntimeClass**: Use the `nvidia` runtime
+2. **Toleration**: Tolerate the `gpu` taint
+3. **Node Selector**: Target the GPU node
+
+Here's a complete example:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-workload
+  namespace: nvidia
+spec:
+  runtimeClassName: nvidia
+  nodeSelector:
+    role: gpu
+  tolerations:
+    - key: gpu
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
+  containers:
+    - name: cuda-app
+      image: nvcr.io/nvidia/cuda:12.2.0-base-ubuntu22.04
+      command: ["nvidia-smi"]
+```
+
+The combination of the taint and node selector ensures GPU workloads run on Velaryon while keeping non-GPU workloads away.
+
+## Conclusion
+
+Velaryon is back in business, now running Talos Linux like the rest of the cluster. The combination of Talos's Image Factory for custom system extensions, declarative kernel module configuration, and Kubernetes RuntimeClasses provides a clean, maintainable way to support GPU workloads.
+
+No more manually installed drivers or special-case configuration. Just another node in the cluster—one that happens to have a very nice GPU.
