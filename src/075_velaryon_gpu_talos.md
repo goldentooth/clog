@@ -188,9 +188,3 @@ spec:
 ```
 
 The combination of the taint and node selector ensures GPU workloads run on Velaryon while keeping non-GPU workloads away.
-
-## Conclusion
-
-Velaryon is back in business, now running Talos Linux like the rest of the cluster. The combination of Talos's Image Factory for custom system extensions, declarative kernel module configuration, and Kubernetes RuntimeClasses provides a clean, maintainable way to support GPU workloads.
-
-No more manually installed drivers or special-case configuration. Just another node in the cluster—one that happens to have a very nice GPU.
