@@ -75,3 +75,4 @@
 - [External-DNS (again)](./073_external_dns.md)
 - [Kube-VIP](./074_kube_vip.md)
 - [Velaryon Returns: GPU Support in Talos](./075_velaryon_gpu_talos.md)
+- [Cilium CNI: eBPF-Based Networking](./076_cilium.md)
