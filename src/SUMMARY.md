@@ -77,3 +77,4 @@
 - [Velaryon Returns: GPU Support in Talos](./075_velaryon_gpu_talos.md)
 - [Cilium CNI: eBPF-Based Networking](./076_cilium.md)
 - [Step-CA (Again)](./077_step_ca.md)
+- [KubeVirt](./078_kubevirt.md)
