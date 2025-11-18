@@ -221,6 +221,8 @@ All green! The cluster now has:
 - **Automatic replication** (2 copies of each object)
 - **Fault tolerance** via Raft consensus
 
+I need to get Longhorn or smth else running so I can have an RWM volume and HA for the Filer. Probably. IDK.
+
 ## Key Learnings
 
 1. **GPT has backup tables** – Wiping just the beginning of a disk isn't enough. GPT keeps a backup partition table at the end, and the kernel will restore from it. Use `sgdisk --zap-all`.
