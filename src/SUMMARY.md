@@ -78,3 +78,4 @@
 - [Cilium CNI: eBPF-Based Networking](./076_cilium.md)
 - [Step-CA (Again)](./077_step_ca.md)
 - [KubeVirt](./078_kubevirt.md)
+- [SeaweedFS (Again)](./079_seaweedfs.md)
