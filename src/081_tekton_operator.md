@@ -183,3 +183,150 @@ So there IS a risk during operator reinstallation. But:
 - The alternative (Layer 0 CRD management) adds ongoing complexity for every upgrade
 
 For this cluster's scale and use case, the tradeoff is worth it. If I were running a multi-tenant CI/CD platform with hundreds of users creating thousands of pipelines, I'd separate the CRD lifecycle. But for infrastructure automation and VM builds? The simpler approach wins.
+
+## Part Two: The Helm Chart Was a Lie
+
+A few days later, I tried to actually configure Tekton with a `TektonConfig`. This is where things went sideways. Spectacularly.
+
+### The Webhook Naming Bug
+
+When I created the `TektonConfig`, Flux reported:
+
+```
+TektonConfig/config dry-run failed: admission webhook "webhook.operator.tekton.dev" denied the request
+```
+
+Dug into it - the webhook was looking for a service named `tekton-operator-webhook`, but the Helm chart created a service named `tekton-operator-tekton-operator-webhook`. Classic Helm double-naming bug where the release name (`tekton-operator`) gets concatenated with the chart's internal naming (`tekton-operator-webhook`). I considered a few options for dealing with this, and none of them seemed particularly appealing.
+
+### Ditching Helm for Raw Manifests
+
+The official Tekton installation docs don't even use Helm. They just do:
+
+```bash
+kubectl apply -f https://storage.googleapis.com/tekton-releases/operator/latest/release.yaml
+```
+
+Fine. Let's use the official manifests. The tektoncd/operator repo at v0.77.0 has a nice Kustomize structure, so I updated my Flux Kustomization to point to the tekton-operator GitRepository at that path.
+
+### The `ko://` Nightmare
+
+Pods started spinning up, but:
+
+```
+State:     Waiting
+  Reason:  InvalidImageName
+Events:
+  Warning  InspectFailed  kubelet  Failed to apply default image tag
+    "ko://github.com/tektoncd/operator/cmd/kubernetes/webhook":
+    couldn't parse image name: invalid reference format
+```
+
+The image field was literally `ko://github.com/tektoncd/operator/cmd/kubernetes/webhook`.
+
+What. The. Fuck.
+
+Turns out the repo source manifests are meant to be processed by [ko](https://ko.build/), a tool that builds Go containers and replaces these placeholder URLs with actual container image references. The "release" artifacts on GCS have real images like `gcr.io/tekton-releases/...`, but the repo source files are just templates.
+
+I grabbed the wrong thing. The repo isn't what you deploy. The repo is what you *build* to create what you deploy.
+
+### Vendoring the Release Manifest
+
+Fine. Downloaded the actual release manifest:
+
+```bash
+curl -sL "https://storage.googleapis.com/tekton-releases/operator/previous/v0.77.0/release.yaml" \
+  -o infrastructure/tekton/operator/manifests/release.yaml
+```
+
+Updated the Flux structure to vendor the manifest:
+
+```
+infrastructure/tekton/operator/
+├── flux-kustomization.yaml
+├── kustomization.yaml
+├── operator-install.yaml          # Points to manifests/
+└── manifests/
+    ├── kustomization.yaml
+    └── release.yaml               # Vendored v0.77.0 release
+```
+
+Pushed. Reconciled. Operator finally deployed with real container images.
+
+### Stuck CRDs During Reinstall
+
+Of course it wasn't that simple. The old Helm installation left behind CRDs with finalizers. One CRD (`tektoninstallersets.operator.tekton.dev`) was stuck in `Terminating` state, blocking the new installation.
+
+The culprit: an orphaned `TektonInstallerSet` resource with its own finalizer that was blocking the CRD from being deleted, which was blocking Flux from applying the new manifests.
+
+```bash
+# Nuclear option: remove the finalizer
+kubectl patch tektoninstallerset validating-mutating-webhook-pknjj \
+  -p '{"metadata":{"finalizers":[]}}' --type=merge
+```
+
+CRD finished deleting. New installation proceeded.
+
+### TektonConfig Schema Fun
+
+Now I needed to actually configure Tekton with a `TektonConfig`. Tried to be clever with settings like `disable-creds-init` and replica counts. Webhook rejected it:
+
+```
+unknown field "disable-creds-init"
+```
+
+`kubectl explain tektonconfig.spec` returned nothing useful because the CRD uses `x-kubernetes-preserve-unknown-fields: true`. Had to look at the actual example in the repo:
+
+```yaml
+apiVersion: operator.tekton.dev/v1alpha1
+kind: TektonConfig
+metadata:
+  name: config
+spec:
+  profile: all
+  targetNamespace: tekton-pipelines
+```
+
+That's it. The minimal config is *very* minimal. My elaborate config with custom options was using fields that don't exist in v0.77.0.
+
+### Profile: all Means ALL
+
+Used `profile: all`. Seemed reasonable. But "all" includes TektonResult, which needs a PostgreSQL database I don't have. Components kept failing because Result couldn't reconcile.
+
+The fix was disabling the components I don't want:
+
+```yaml
+spec:
+  profile: all
+  targetNamespace: tekton-pipelines
+  result:
+    disabled: true  # Needs PostgreSQL
+  chain:
+    disabled: true  # Needs signing infrastructure
+```
+
+Finally. TektonConfig applied. Components deployed. Dashboard running.
+
+### Exposing the Dashboard
+
+The operator manages the Dashboard service, so I can't just change it to a LoadBalancer (it would get reverted). Created a separate LoadBalancer service:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: tekton-dashboard-lb
+  namespace: tekton-pipelines
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: tekton-dashboard.goldentooth.net
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: dashboard
+    app.kubernetes.io/component: dashboard
+  ports:
+    - name: http
+      port: 80
+      targetPort: 9097
+```
+
+Dashboard is now accessible at `http://tekton-dashboard.goldentooth.net`.
