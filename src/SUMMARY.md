@@ -81,3 +81,4 @@
 - [SeaweedFS (Again)](./079_seaweedfs.md)
 - [SeaweedFS S3 Authentication](./080_seaweedfs_s3_auth.md)
 - [Tekton Operator](./081_tekton_operator.md)
+- [JupyterLab with GPU: The ML Workbench](./082_jupyterlab_gpu.md)
