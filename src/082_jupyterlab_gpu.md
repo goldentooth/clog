@@ -247,4 +247,34 @@ The caveat: time-slicing doesn't partition memory. All pods see the full 8GB VRA
 
 The infrastructure is ready for Karpathy's nanoGPT and similar educational ML projects. The RTX 2070 Super's 8GB VRAM can handle GPT-2 sized models comfortably—plenty for learning transformer architectures from scratch.
 
+## First Real Test: minGPT
+
+To prove this wasn't all just infrastructure theater, I cloned Karpathy's minGPT directly in JupyterLab's terminal:
+
+```bash
+cd /home/jovyan/work
+git clone https://github.com/karpathy/minGPT.git
+cd minGPT
+pip install -e .
+```
+
+The `generate.ipynb` notebook loads a pretrained GPT-2 and generates text completions. One small hiccup: the container's PyTorch 2.1.2 didn't play nice with the latest `transformers` library (4.57.1). The `register_pytree_node` API changed between versions, causing import failures. The fix was pinning to a contemporary version:
+
+```bash
+pip install transformers==4.35.2
+```
+
+After a kernel restart to clear Python's module cache, everything worked. GPT-2 had some interesting things to say about me:
+
+```
+generate(prompt='Nathan Douglas, the undisputed', num_samples=10, steps=20)
+---
+Nathan Douglas, the undisputed number two on the Eagles' 2015 draft board, announced his retirement on Monday.
+Nathan Douglas, the undisputed champion of the British-Canadian soccer circuit, is a former student of the sport.
+Nathan Douglas, the undisputed best QB in the league, did go to the same AAU program, but he didn't even
+Nathan Douglas, the undisputed king of the world, is one of only two kings known to have ever held the throne of England
+```
+
+The "undisputed king of the world" and "champion of the British-Canadian soccer circuit" — GPT-2 is nothing if not flattering.
+
 Time to train some tiny language models.
