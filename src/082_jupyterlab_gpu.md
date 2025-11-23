@@ -218,6 +218,33 @@ print(f"Matrix multiply on GPU: {z.shape}")
 
 8.4GB of VRAM ready for neural network experiments. Not bad for a Raspberry Pi cluster's sidekick.
 
+## Time-Slicing: Sharing the GPU
+
+There was one problem with this setup: while JupyterLab was running (even idle), it held the GPU exclusively. Requesting `nvidia.com/gpu: 1` means "give me sole access to one GPU." With only one GPU on Velaryon, I couldn't run any other GPU workloads without scaling JupyterLab to zero first.
+
+The fix is **time-slicing**, a feature of the NVIDIA Device Plugin that advertises a single physical GPU as multiple virtual GPUs. Pods take turns via context-switching—like how an OS schedules multiple processes on a single CPU.
+
+```yaml
+# gitops/infrastructure/nvidia/time-slicing-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nvidia-device-plugin-config
+  namespace: nvidia
+data:
+  config.yaml: |
+    version: v1
+    sharing:
+      timeSlicing:
+        resources:
+          - name: nvidia.com/gpu
+            replicas: 4
+```
+
+With this config, Velaryon advertises `nvidia.com/gpu: 4` instead of 1. JupyterLab can keep running with its GPU request, and I can still launch 3 more GPU pods for training jobs or inference.
+
+The caveat: time-slicing doesn't partition memory. All pods see the full 8GB VRAM. If multiple pods try to allocate more than 8GB combined, you get CUDA OOM errors. For learning and experimentation where I'm not running multiple heavy jobs simultaneously, this is rarely an issue.
+
 The infrastructure is ready for Karpathy's nanoGPT and similar educational ML projects. The RTX 2070 Super's 8GB VRAM can handle GPT-2 sized models comfortably—plenty for learning transformer architectures from scratch.
 
 Time to train some tiny language models.
