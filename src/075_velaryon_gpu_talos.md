@@ -21,7 +21,7 @@ Talos doesn't ship with NVIDIA drivers baked in (for good reason—most nodes do
 The process is straightforward:
 1. Select the Talos version (v1.11.1 in my case)
 2. Choose the system extensions needed:
-   - `siderolabs/nvidia-driver` - The NVIDIA kernel modules
+   - `siderolabs/nonfree-kmod-nvidia-lts` - The NVIDIA kernel modules
    - `siderolabs/nvidia-container-toolkit` - Container runtime integration
 3. Get a custom image URL to use for installation
 
