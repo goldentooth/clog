@@ -83,3 +83,4 @@
 - [Tekton Operator](./081_tekton_operator.md)
 - [JupyterLab with GPU: The ML Workbench](./082_jupyterlab_gpu.md)
 - [GPU Gaming Containers](./083_gpu_gaming_containers.md)
+- [Docker Registry: Because Harbor is Too Good for ARM64](./084_docker_registry.md)
