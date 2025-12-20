@@ -85,3 +85,4 @@
 - [GPU Gaming Containers](./083_gpu_gaming_containers.md)
 - [Docker Registry: Because Harbor is Too Good for ARM64](./084_docker_registry.md)
 - [Litmus](./085_litmus.md)
+- [Loki and Alloy: Log Aggregation](./086_loki_alloy.md)
