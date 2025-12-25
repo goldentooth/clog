@@ -86,3 +86,4 @@
 - [Docker Registry: Because Harbor is Too Good for ARM64](./084_docker_registry.md)
 - [Litmus](./085_litmus.md)
 - [Loki and Alloy: Log Aggregation](./086_loki_alloy.md)
+- [Prometheus Blackbox Exporter: Kubernetes Edition](./087_blackbox_exporter_k8s.md)
