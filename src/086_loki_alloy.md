@@ -203,12 +203,12 @@ Fixed the Alloy config and Grafana datasource to use `monitoring-loki.monitoring
 │    API          │────▶│  (2 replicas │────▶│ (monolithic)│
 │ (pod logs)      │     │  clustered)  │     │             │
 └─────────────────┘     └──────────────┘     └──────┬──────┘
-                                                     │
-                                                     ▼
-                                              ┌─────────────┐
-                                              │   Grafana   │
-                                              │  (Explore)  │
-                                              └─────────────┘
+                                                    │
+                                                    ▼
+                                             ┌─────────────┐
+                                             │   Grafana   │
+                                             │  (Explore)  │
+                                             └─────────────┘
 ```
 
 Verified logs are flowing:
