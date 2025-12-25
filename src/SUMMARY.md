@@ -87,3 +87,4 @@
 - [Litmus](./085_litmus.md)
 - [Loki and Alloy: Log Aggregation](./086_loki_alloy.md)
 - [Prometheus Blackbox Exporter 2](./087_blackbox_exporter_k8s.md)
+- [OpenTelemetry and Tempo](./088_opentelemetry_tempo.md)
