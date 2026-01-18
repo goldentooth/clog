@@ -17,18 +17,18 @@ The individual nodes are Raspberry Pi 4B/8GB. As of the time I'm writing this, R
 The cluster consists of 13 nodes with specific roles and configurations:
 
 **Raspberry Pi Nodes (12 total)**:
-- **allyrion** (10.4.0.10) - NFS server, HAProxy load balancer, Docker host
-- **bettley** (10.4.0.11) - Kubernetes control plane, Consul server, Vault server
-- **cargyll** (10.4.0.12) - Kubernetes control plane, Consul server, Vault server
-- **dalt** (10.4.0.13) - Kubernetes control plane, Consul server, Vault server
-- **erenford** (10.4.0.14) - Kubernetes worker, Ray head node, ZFS storage
-- **fenn** (10.4.0.15) - Kubernetes worker, Ceph storage node
-- **gardener** (10.4.0.16) - Kubernetes worker, Grafana host, ZFS storage
-- **harlton** (10.4.0.17) - Kubernetes worker
-- **inchfield** (10.4.0.18) - Kubernetes worker, Loki log aggregation
-- **jast** (10.4.0.19) - Kubernetes worker, Step-CA certificate authority
-- **karstark** (10.4.0.20) - Kubernetes worker, Ceph storage node
-- **lipps** (10.4.0.21) - Kubernetes worker, Ceph storage node
+- **allyrion** (10.4.0.10) - Pi4B - NFS server, HAProxy load balancer, Docker host
+- **bettley** (10.4.0.11) - Pi4B - Kubernetes control plane, Consul server, Vault server
+- **cargyll** (10.4.0.12) - Pi4B - Kubernetes control plane, Consul server, Vault server
+- **dalt** (10.4.0.13) - Pi4B - Kubernetes control plane, Consul server, Vault server
+- **erenford** (10.4.0.14) - Pi4B - Kubernetes worker, Ray head node, ZFS storage
+- **fenn** (10.4.0.15) - Pi4B - Kubernetes worker, Ceph storage node
+- **gardener** (10.4.0.16) - Pi4B - Kubernetes worker, Grafana host, ZFS storage
+- **harlton** (10.4.0.17) - Pi4B - Kubernetes worker
+- **inchfield** (10.4.0.18) - Pi5 - Kubernetes worker, Loki log aggregation
+- **jast** (10.4.0.19) - Pi5 - Kubernetes worker, Step-CA certificate authority
+- **karstark** (10.4.0.20) - Pi5 - Kubernetes worker, Ceph storage node
+- **lipps** (10.4.0.21) - Pi5 - Kubernetes worker, Ceph storage node
 
 **x86 GPU Node**:
 - **velaryon** (10.4.0.30) - AMD Ryzen 9 3900X, 32GB RAM, NVIDIA RTX 2070 Super
@@ -50,6 +50,13 @@ over_voltage=6
 
 These overclocking settings provide approximately 33% performance increase while maintaining thermal stability with active cooling.
 
+**Raspberry Pi 5 Specifications**:
+- **CPU**: ARM Cortex-A76 quad-core @ 2.4GHz
+- **RAM**: 8GB LPDDR4X
+- **Storage**: SanDisk 256GB Extreme microSDXC (UHS-I Class 10), 1TB NVMe SSD
+- **Network**: Gigabit Ethernet (onboard)
+- **GPIO**: Used for fan control (pin 14) and hardware monitoring
+
 ### Network Infrastructure
 
 **Network Segmentation**:
@@ -68,7 +75,7 @@ Each node has documented MAC addresses for network boot and management:
 **Distributed Storage Strategy**:
 
 **NFS Shared Storage**:
-- **Server**: allyrion exports `/mnt/usb1` 
+- **Server**: allyrion exports `/mnt/usb1`
 - **Clients**: All 13 nodes mount at `/mnt/nfs`
 - **Use Cases**: Configuration files, shared datasets, cluster coordination
 
