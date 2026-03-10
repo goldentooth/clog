@@ -97,12 +97,6 @@ kind: Gateway
 metadata:
   name: goldentooth
   namespace: gateway
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: >-
-      grafana.goldentooth.net, prometheus.goldentooth.net,
-      ntfy.goldentooth.net, hubble.goldentooth.net,
-      httpbin.goldentooth.net, jupyterlab.goldentooth.net,
-      chaos-center.goldentooth.net, tekton-dashboard.goldentooth.net
 spec:
   gatewayClassName: cilium
   listeners:
@@ -254,14 +248,39 @@ Quick fix — annotate the auto-created Service directly:
 
 ```bash
 kubectl annotate svc -n gateway cilium-gateway-goldentooth \
-  "external-dns.alpha.kubernetes.io/hostname=grafana.goldentooth.net,\
-prometheus.goldentooth.net,ntfy.goldentooth.net,hubble.goldentooth.net,\
-httpbin.goldentooth.net,jupyterlab.goldentooth.net,\
-chaos-center.goldentooth.net,tekton-dashboard.goldentooth.net" \
+  "external-dns.alpha.kubernetes.io/hostname=grafana.goldentooth.net,..." \
   "external-dns.alpha.kubernetes.io/ttl=60"
 ```
 
-Within 60 seconds, External-DNS was creating A records in Route 53:
+That got DNS working immediately, but listing every hostname in an annotation on one resource is obviously not going to scale. Every time I add a service, I'd have to go touch the Gateway annotation. Nope.
+
+The real fix: add `--source=gateway-httproute` to External-DNS. With this source, External-DNS watches HTTPRoute resources and reads the `hostnames` field from each one. Since every HTTPRoute already declares its hostname, DNS records appear automatically when routes are added. No annotation maintenance anywhere.
+
+The deployment change:
+
+```yaml
+args:
+  - --source=service
+  - --source=gateway-httproute
+```
+
+But External-DNS also needs RBAC to read Gateway API resources, which it obviously didn't have:
+
+```yaml
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["gateways", "httproutes"]
+  verbs: ["get", "list", "watch"]
+```
+
+With both changes applied, I removed the manual annotations from the Gateway and the auto-created Service:
+
+```bash
+kubectl annotate svc -n gateway cilium-gateway-goldentooth \
+  external-dns.alpha.kubernetes.io/hostname- \
+  external-dns.alpha.kubernetes.io/ttl-
+```
+
+Within 60 seconds, External-DNS was discovering endpoints from each HTTPRoute and confirming A records in Route 53:
 
 ```
 Desired change: CREATE grafana.goldentooth.net A
@@ -280,16 +299,16 @@ All pointing at 10.4.11.1.
 
 Verified with curl:
 
-| Service | Status | Notes |
-|---------|--------|-------|
-| ntfy.goldentooth.net | 200 | Push notifications |
-| grafana.goldentooth.net | 302 | Redirects to /login |
-| prometheus.goldentooth.net | 302 | Normal |
-| hubble.goldentooth.net | 200 | Network observability |
-| httpbin.goldentooth.net | 200 | HTTP testing |
-| jupyterlab.goldentooth.net | — | GPU workbench |
-| chaos-center.goldentooth.net | — | Litmus chaos |
-| tekton-dashboard.goldentooth.net | — | CI/CD |
+| Service                          | Status | Notes                 |
+| -------------------------------- | ------ | --------------------- |
+| ntfy.goldentooth.net             | 200    | Push notifications    |
+| grafana.goldentooth.net          | 302    | Redirects to /login   |
+| prometheus.goldentooth.net       | 302    | Normal                |
+| hubble.goldentooth.net           | 200    | Network observability |
+| httpbin.goldentooth.net          | 200    | HTTP testing          |
+| jupyterlab.goldentooth.net       | —      | GPU workbench         |
+| chaos-center.goldentooth.net     | —      | Litmus chaos          |
+| tekton-dashboard.goldentooth.net | —      | CI/CD                 |
 
 HTTP requests to port 80 return a 301 redirect to HTTPS. The Gateway has a single MetalLB IP (10.4.11.1) instead of eight separate LoadBalancer IPs. TLS terminates at the gateway with certs from Step-CA, renewed every 24 hours by cert-manager.
 
@@ -299,6 +318,6 @@ HTTP requests to port 80 return a 301 redirect to HTTPS. The Gateway has a singl
 
 2. Kubernetes RBAC `resourceNames` restrictions on `create` verbs are silently useless. The authorization check passes because there's no name to match against, but the *intent* — "only allow creating this specific named resource" — is a lie. If the thing gets deleted, you can't recreate it.
 
-3. External-DNS with `--source=service` doesn't see Gateway resources. If you're using Cilium Gateway API, either add `--source=gateway-httproute` to External-DNS or annotate the auto-created Service. Cilium doesn't propagate annotations from Gateway to Service.
+3. External-DNS with `--source=service` doesn't see Gateway resources, and Cilium doesn't propagate annotations from Gateway to the auto-created Service. The right fix is `--source=gateway-httproute`, which reads hostnames directly from each HTTPRoute — new routes get DNS records automatically with zero annotation management.
 
 4. The cluster had been silently failing cert renewals for three days and nothing noticed because the alerting pipeline didn't exist yet. The very thing I was deploying (ntfy + PrometheusRules) would have caught this immediately. There's a metaphor in there about infrastructure bootstrapping and chickens and eggs but I'm too tired to articulate it.
