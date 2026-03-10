@@ -123,11 +123,11 @@ None of these worked because the fundamental problem was that the UEFI firmware 
 
 The solution: patch the UEFI firmware to use **DeviceTree mode** instead of ACPI mode. EDK2's `ConfigDxe` driver has a `SystemTableMode` setting stored in NVRAM:
 
-| Value | Mode |
-|-------|------|
-| 0 | ACPI (default) |
-| 1 | Both |
-| 2 | DeviceTree |
+| Value | Mode           |
+| ----- | -------------- |
+| 0     | ACPI (default) |
+| 1     | Both           |
+| 2     | DeviceTree     |
 
 In DT mode, the UEFI firmware passes the VideoCore-prepared device tree through to the OS via the EFI system table. The kernel gets a proper device tree with the SD controller node, the driver loads, `/dev/mmcblk0` appears, and Talos can install.
 
@@ -192,20 +192,20 @@ Initially the script was brittle — it tried to run `grub-mkimage` on x86 (prod
 
 The final set of files in `gitops/infrastructure/netboot/`:
 
-| File | Purpose |
-|------|---------|
-| `namespace.yaml` | The `netboot` namespace |
-| `node-inventory.yaml` | ConfigMap mapping Pi serials → hostnames, MACs, IPs |
-| `dnsmasq-configmap.yaml` | Proxy DHCP + TFTP configuration |
-| `dnsmasq-daemonset.yaml` | DaemonSet pinned to Velaryon, hostNetwork |
-| `setup-boot-assets-script.yaml` | The init container script |
-| `grub-arm64-efi-configmap.yaml` | Pre-built arm64-efi GRUB binary (628K) |
-| `matchbox-deployment.yaml` | Matchbox HTTP server for Talos configs |
-| `matchbox-service.yaml` | (Mostly vestigial, since we use hostNetwork) |
-| `matchbox-groups.yaml` | Matchbox group definitions |
-| `matchbox-profiles.yaml` | Matchbox profile definitions |
-| `eeprom-update-job.yaml` | Job to set BOOT_ORDER on all Pi 4B nodes |
-| `kustomization.yaml` | Ties it all together |
+| File                            | Purpose                                             |
+| ------------------------------- | --------------------------------------------------- |
+| `namespace.yaml`                | The `netboot` namespace                             |
+| `node-inventory.yaml`           | ConfigMap mapping Pi serials → hostnames, MACs, IPs |
+| `dnsmasq-configmap.yaml`        | Proxy DHCP + TFTP configuration                     |
+| `dnsmasq-daemonset.yaml`        | DaemonSet pinned to Velaryon, hostNetwork           |
+| `setup-boot-assets-script.yaml` | The init container script                           |
+| `grub-arm64-efi-configmap.yaml` | Pre-built arm64-efi GRUB binary (628K)              |
+| `matchbox-deployment.yaml`      | Matchbox HTTP server for Talos configs              |
+| `matchbox-service.yaml`         | (Mostly vestigial, since we use hostNetwork)        |
+| `matchbox-groups.yaml`          | Matchbox group definitions                          |
+| `matchbox-profiles.yaml`        | Matchbox profile definitions                        |
+| `eeprom-update-job.yaml`        | Job to set BOOT_ORDER on all Pi 4B nodes            |
+| `kustomization.yaml`            | Ties it all together                                |
 
 ## Per-Node TFTP Structure
 
