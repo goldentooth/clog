@@ -89,3 +89,4 @@
 - [Prometheus Blackbox Exporter 2](./087_blackbox_exporter_k8s.md)
 - [OpenTelemetry and Tempo](./088_opentelemetry_tempo.md)
 - [Network Booting the Bramble](./089_netboot.md)
+- [ntfy, Gateway API, and the Three-Day Cert Outage](./090_ntfy_gateway_api.md)
