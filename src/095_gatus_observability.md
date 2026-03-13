@@ -101,12 +101,12 @@ The `{key}` is `{group}_{name}` with special characters replaced by hyphens. So 
 Added a badge table to the GitHub org profile README template:
 
 ```markdown
-| Service | Health | Uptime (7d) |
-|---------|--------|-------------|
+| Service        | Health         | Uptime (7d)    |
+| -------------- | -------------- | -------------- |
 | Kubernetes API | ![Health](...) | ![Uptime](...) |
-| Prometheus | ![Health](...) | ![Uptime](...) |
-| Grafana | ![Health](...) | ![Uptime](...) |
-| Step CA | ![Health](...) | ![Uptime](...) |
+| Prometheus     | ![Health](...) | ![Uptime](...) |
+| Grafana        | ![Health](...) | ![Uptime](...) |
+| Step CA        | ![Health](...) | ![Uptime](...) |
 ```
 
 Four key services. Kubernetes API because it's the beating heart. Prometheus and Grafana because they're the eyes. Step CA because it's the PKI root and if it's down, certificates stop renewing. Anyone visiting the GitHub org page now gets live health and uptime badges, which is either impressively professional or deeply unnecessary for a home cluster. Both, probably.
