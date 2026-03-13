@@ -91,4 +91,4 @@
 - [Network Booting the Bramble](./089_netboot.md)
 - [ntfy, Gateway API, and the Three-Day Cert Outage](./090_ntfy_gateway_api.md)
 - [Joining Pi 5 Nodes: The Manual Bootstrap](./091_pi5_manual_bootstrap.md)
-- [Longhorn: Distributed Storage on NVMe](./092_longhorn.md)
+- [Longhorn](./092_longhorn.md)
