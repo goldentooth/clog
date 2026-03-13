@@ -94,3 +94,4 @@
 - [Longhorn](./092_longhorn.md)
 - [Garage: S3 Storage for a Post-MinIO World](./093_garage.md)
 - [Storage Benchmarks: SD Cards vs. USB Sticks vs. NVMe](./094_storage_benchmarks.md)
+- [Gatus: Metrics, Alerts, and Shiny Badges](./095_gatus_observability.md)
