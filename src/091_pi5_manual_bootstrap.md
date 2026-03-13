@@ -264,15 +264,3 @@ velaryon    Ready    <none>          v1.34.0   Talos (v1.12.5)   10.4.0.30
 ```
 
 Three control plane nodes, twelve Pi 4B workers on Talos, four Pi 5 workers on Ubuntu with 932GB NVMe each, and one x86 GPU node. A mixed-OS Kubernetes cluster held together by a shared bootstrap token, a socat proxy, and a refusal to let a kernel bug win.
-
-## Lessons
-
-**kubeadm assumes kubeadm.** The tool works great when both the control plane and the joining node were set up with kubeadm. When the control plane is Talos, kubeadm's discovery mechanisms break because they depend on artifacts (ConfigMaps, anonymous auth) that Talos doesn't create. Manual TLS bootstrap sidesteps all of that.
-
-**The kubelet is simpler than kubeadm makes it look.** Four files. That's it. CA cert, bootstrap kubeconfig, kubelet config, systemd drop-in. The kubelet handles the rest — key generation, CSR submission, certificate rotation. kubeadm is a nice wrapper, but the underlying protocol is straightforward.
-
-**Talos's local API proxy is an invisible dependency.** KubePrism at `localhost:7445` is baked into every Talos component that talks to the API server. When you add non-Talos nodes, you inherit that assumption. socat is the duct tape that bridges the gap.
-
-**Mixed-OS clusters are fine, actually.** Ubuntu and Talos nodes coexist without drama once the kubelet config is adapted. The main differences — cgroup driver, kernel defaults, resolv.conf paths — are all kubelet-level configuration. The cluster doesn't care what OS a node runs as long as kubelet speaks the right protocol.
-
-Next up: Longhorn on those NVMe drives. The whole point of those Pi 5 nodes was distributed storage, and they're finally in a position to provide it.
