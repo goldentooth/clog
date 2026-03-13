@@ -93,4 +93,4 @@
 - [Joining Pi 5 Nodes: The Manual Bootstrap](./091_pi5_manual_bootstrap.md)
 - [Longhorn](./092_longhorn.md)
 - [Garage: S3 Storage for a Post-MinIO World](./093_garage.md)
-- [Storage Benchmarks: SD Cards, USB Sticks, and the NVMe Promise](./094_storage_benchmarks.md)
+- [Storage Benchmarks: SD Cards vs. USB Sticks vs. NVMe](./094_storage_benchmarks.md)
