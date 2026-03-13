@@ -21,17 +21,6 @@ The fio tests cover sequential read/write (1MB blocks, iodepth=32) and random re
 
 First attempt used `ljishen/fio:latest`. Immediate `exec format error` — no arm64 support. Tried `xridge/fio:latest`. Same thing. Turns out the standard fio container images are all amd64-only. The fix: just use `alpine:latest` and `apk add fio` at runtime. Alpine has fio 3.41 in its repos with proper arm64 builds. Adds maybe 3 seconds to job startup. Fine.
 
-### Talos hostPath and Pod Security
-
-My first attempt to run fio with a hostPath volume on a Talos node got slapped down by Pod Security Standards:
-
-```
-Error from server (Forbidden): pods "fio-test" is forbidden:
-violates PodSecurity "baseline:latest": hostPath volumes (volume "host")
-```
-
-The default namespace runs at `baseline` PSS, which blocks hostPath. The fix was trivial: the benchmark namespace gets created with `pod-security.kubernetes.io/enforce: privileged`. Same pattern used by `kube-system`, `longhorn-system`, and a dozen other infrastructure namespaces.
-
 ### USB: Raw Block Device
 
 The USB flash drive situation was more interesting. The stick shows up as `/dev/sda` (with two partitions from a previous life), but Talos doesn't auto-mount it. Erenford's `talconfig.yaml` has a `userVolumes` entry for USB disks, but that only provisions at install/boot time — hot-plugging doesn't trigger it.
@@ -85,11 +74,13 @@ I don't know what I expected from a drawer-dwelling flash drive, but it's worse 
 
 The one metric where USB is *weirdly* competitive is random read latency: 12.7ms vs the SD card's 19.7ms. I have no explanation for this. Flash controller firmware is dark magic.
 
+I'm hoping that some newer flash drives will be more competitive so I can move `etcd` to USB flash drives and off the SD card. It'd be better if I had SSDs, but I'm not crazy about the Pi <-> USB <-> SSD chain - at least with the USB-to-SATA cables I have, which seem frightfully amenable to getting nudged out of place.
+
 ### SD Cards Are Fine, Actually
 
-The SD cards in the Pis are not embarrassing. 44 MB/s sequential read is reasonable for what they are, and 3,244 random read IOPS is enough for Talos's needs (read-heavy OS partition, mostly cached in memory anyway). The weak point is random writes — 723 IOPS at 88ms latency. Anything write-heavy (databases, etcd, logging) would suffer.
+The SD cards in the Pis are not embarrassing. 44 MB/s sequential read is reasonable for what they are, and 3,244 random read IOPS is enough for Talos's needs (read-heavy OS partition, mostly cached in memory anyway). The weak point is random writes — 723 IOPS at 88ms latency. Anything write-heavy (databases, `etcd`, logging) would suffer.
 
-Good thing the control plane etcd runs on SD cards. 😐
+Good thing the control plane `etcd` runs on SD cards. 😐
 
 ### NVMe Longhorn: Actually Fast
 
@@ -111,7 +102,7 @@ Small objects (1KB) have ~20-30ms round-trip latency. That's the HTTP + S3 proto
 
 As objects get larger, throughput scales well. At 10MB: 29 MB/s PUT and 70 MB/s GET. That GET number is actually competitive with the raw SD card sequential read. For bulk data (Docker layers, log archives, backups), Garage's throughput is perfectly adequate.
 
-The key insight: **use the right storage for the right job**. Need a database? Longhorn PVC. Need to store 500MB Docker layers? Garage is fine. Need to keep etcd running? Pray for those SD cards.
+The key insight: **use the right storage for the right job**. Need a database? Longhorn PVC. Need to store 500MB Docker layers? Garage is fine. Need to keep etcd running? Pray for my SD cards.
 
 ## Running It
 
