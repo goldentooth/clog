@@ -1,10 +1,68 @@
-# Gatus: Metrics, Alerts, and Shiny Badges
+# Gatus: A Declarative Status Page
 
-## The Status Page That Could Do More
+## Why Not Uptime Kuma?
 
-Last session I replaced Uptime Kuma with [Gatus](https://github.com/TwiN/gatus) — a declarative status page that lives entirely in a ConfigMap instead of a click-around web UI. 14 endpoints, health checks, a public status page at `status.goldentooth.net`, done.
+I'd been running [Uptime Kuma](https://github.com/louislam/uptime-kuma) for status monitoring. It works. It has a nice UI with pretty charts. You click buttons to add endpoints. You click more buttons to configure alerts. You click even more buttons to change thresholds.
 
-But Gatus was sitting there like a security camera that records to `/dev/null`. It knew when things were broken, it just... didn't tell anyone. And it was generating internal metrics nobody was scraping. Time to fix both of those things, plus add some vanity badges to the GitHub profile because why not.
+That's the problem. It's a clicky web app with all its state locked in a SQLite database. Every endpoint, every alert rule, every threshold — configured through the UI, invisible to Git, impossible to review in a PR. The antithesis of declarative infrastructure. If the pod dies and the PVC is gone, you're rebuilding the entire monitoring config from memory.
+
+[Gatus](https://github.com/TwiN/gatus) is the opposite. The entire configuration is a YAML file. Endpoints, conditions, alerts, UI settings — all in a ConfigMap. GitOps-native. If I nuke the deployment and redeploy from the repo, I get the exact same status page back. No clicking required, ever.
+
+## The Deployment
+
+Gatus runs as a single-replica Deployment in the `gatus` namespace with a Longhorn PVC for SQLite history and an HTTPRoute on the Cilium gateway for `status.goldentooth.net`.
+
+The interesting part is the config. Here's the shape of it:
+
+```yaml
+ui:
+  title: Goldentooth Cluster Status
+  header: Goldentooth
+
+storage:
+  type: sqlite
+  path: /data/gatus.db
+
+endpoints:
+  - name: Kubernetes API
+    group: infrastructure
+    url: https://cp.k8s.goldentooth.net:6443/healthz
+    client:
+      insecure: true
+    interval: 1m
+    conditions:
+      - "[STATUS] == any(200, 401)"
+
+  - name: Grafana
+    group: cluster
+    url: http://monitoring-kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80/login
+    interval: 2m
+    conditions:
+      - "[STATUS] == 200"
+      - "[RESPONSE_TIME] < 3000"
+
+  # ... 12 more endpoints ...
+```
+
+14 endpoints total across three groups: `infrastructure` (Kubernetes API), `cluster` (Grafana, Prometheus, Alertmanager, Loki, Tempo, Docker Registry, Step CA, Blackbox Exporter), `apps` (httpbin, ntfy, JupyterLab), and `external` (goldentooth.net, clog.goldentooth.net).
+
+The Kubernetes API endpoint deserves a note. Talos locks down the API server — unauthenticated requests to `/healthz` get a 401, not a 200. Uptime Kuma would've called that "down." Gatus lets you express `[STATUS] == any(200, 401)` as a condition, which is exactly the kind of thing you can do when your health checks are code instead of radio buttons.
+
+The ConfigMap is mounted via `subPath`, which means Kubernetes won't auto-update it when the ConfigMap changes. You have to delete the pod to pick up config changes. Mildly annoying, but it prevents mid-flight config reloads from causing weird state.
+
+One deployment quirk: the Longhorn PVC is RWO, so I had to set `strategy.type: Recreate` on the Deployment. Otherwise Kubernetes tries to spin up the new pod before killing the old one, the new pod can't mount the volume, and the rollout deadlocks forever. Classic RWO footgun.
+
+## The Auto-Discovery Detour
+
+With the basic status page working, I got ambitious. Gatus should be able to watch the Kubernetes API for annotated Services and automatically create endpoints for them, right? No more manual ConfigMap edits when you deploy a new app.
+
+I deployed RBAC manifests, added annotations to services, wrote a `kubernetes:` config block. Everything looked right. Gatus started up fine.
+
+Nothing happened. No auto-discovered endpoints. No errors. No warnings.
+
+After some digging, I discovered that Gatus doesn't actually have built-in Kubernetes auto-discovery. The `kubernetes:` config block was silently ignored — Gatus doesn't validate unknown top-level keys. The feature I was trying to use simply doesn't exist. There are third-party tools and forks that add it, but upstream Gatus is strictly "you declare your endpoints in the config file."
+
+Cleaned up all the auto-discovery artifacts — removed the RBAC, removed the annotations, removed the dead config block. Back to manual endpoint declaration, which is honestly fine for 14 endpoints. If the cluster grows to 50 monitored services, I'll revisit.
 
 ## Prometheus Metrics
 
@@ -14,7 +72,7 @@ Gatus has a built-in Prometheus metrics endpoint. You turn it on with a single l
 metrics: true
 ```
 
-That's it. That's the config. Gatus starts exposing `/metrics` on the same port as the UI (8080), and you get counters like `gatus_results_total` broken down by endpoint, success/failure, and HTTP status code. Free time-series data about every health check, forever, bolted straight into the existing Prometheus/Grafana stack.
+That's it. That's the config. Gatus starts exposing `/metrics` on the same port as the UI (8080), and you get counters like `gatus_results_total` broken down by endpoint, success/failure, and HTTP status code. Free time-series data about every health check, bolted straight into the existing Prometheus/Grafana stack.
 
 The ServiceMonitor was straightforward:
 
@@ -111,24 +169,22 @@ Added a badge table to the GitHub org profile README template:
 
 Four key services. Kubernetes API because it's the beating heart. Prometheus and Grafana because they're the eyes. Step CA because it's the PKI root and if it's down, certificates stop renewing. Anyone visiting the GitHub org page now gets live health and uptime badges, which is either impressively professional or deeply unnecessary for a home cluster. Both, probably.
 
-## The Auto-Discovery Detour
-
-I should mention the detour that didn't work. Before all of this, I spent a while trying to set up Kubernetes auto-discovery in Gatus — the idea being that Gatus would watch the Kubernetes API for annotated Services and automatically create endpoints for them. No more manual ConfigMap edits when you deploy a new app.
-
-I deployed RBAC manifests, added annotations to services, wrote a `kubernetes:` config block. Everything looked right. Gatus started up fine.
-
-Nothing happened. No auto-discovered endpoints. No errors. No warnings.
-
-After some digging, I discovered that Gatus doesn't actually have built-in Kubernetes auto-discovery. The `kubernetes:` config block was silently ignored — Gatus doesn't validate unknown top-level keys. The feature I was trying to use simply doesn't exist. There are third-party tools and forks that add it, but upstream Gatus is strictly "you declare your endpoints in the config file."
-
-Cleaned up all the auto-discovery artifacts — removed the RBAC, removed the annotations, removed the dead config block. Back to manual endpoint declaration, which is honestly fine for 14 endpoints. If the cluster grows to 50 monitored services, I'll revisit.
-
 ## The Result
 
-Gatus now does three things it didn't do before:
+The cluster now has a proper declarative status page at `status.goldentooth.net`, backed by a single ConfigMap in Git. It monitors 14 endpoints, pushes metrics to Prometheus, sends failure notifications to my phone via ntfy, and exposes live badges on the GitHub org profile. Uptime Kuma did half of this, but you had to click through a web UI to configure it and pray the PVC survived.
 
-1. **Pushes metrics to Prometheus** — `gatus_results_total` and friends, scraped every 30 seconds, available for Grafana dashboards and alerting rules
-2. **Sends failure notifications to ntfy** — phone buzzes when an endpoint fails 3 consecutive checks, buzzes again when it recovers
-3. **Exposes live status badges** — health and 7-day uptime for key services, embedded in the GitHub org profile
+The full manifest set:
 
-All from a single ConfigMap, a 16-line ServiceMonitor, and a table of Markdown image links. Not bad for an afternoon's work on a status page.
+```
+gitops/apps/gatus/
+├── kustomization.yaml
+├── namespace.yaml
+├── configmap.yaml       # The entire Gatus config
+├── deployment.yaml
+├── service.yaml
+├── pvc.yaml             # 1Gi Longhorn for SQLite
+├── httproute.yaml       # status.goldentooth.net
+└── servicemonitor.yaml  # Prometheus scraping
+```
+
+Everything declarative, everything in Git, everything recoverable from a `git push`.
