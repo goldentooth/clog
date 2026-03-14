@@ -27,7 +27,7 @@ Jesus Christ.
 
 In retrospect, Litmus ChaosCenter was always overkill here. It's designed for teams — a web UI for designing experiments, a MongoDB backend for storing execution history, authentication servers, GraphQL APIs. That's great if you have a team of SREs running coordinated chaos engineering campaigns against production.
 
-I have 16 Raspberry Pis and a dream.
+I have 16 Raspberry Pis and... neuroses?
 
 The ChaosCenter architecture meant I was running:
 - **MongoDB** (via Bitnami, as a replica set even though there's one member) — the storage hog
@@ -236,10 +236,10 @@ Experiment complete. It was anticlimactic in the best possible way.
 
 Resource comparison:
 
-| What | Pods | CPU (idle) | Memory |
-|------|------|-----------|--------|
-| **Litmus** | 4 (+ MongoDB StatefulSet) | ~168m | ~448Mi |
-| **Chaos Mesh** | 5 (1 controller + 4 daemons) | ~9m | ~61Mi |
+| What           | Pods                         | CPU (idle) | Memory |
+| -------------- | ---------------------------- | ---------- | ------ |
+| **Litmus**     | 4 (+ MongoDB StatefulSet)    | ~168m      | ~448Mi |
+| **Chaos Mesh** | 5 (1 controller + 4 daemons) | ~9m        | ~61Mi  |
 
 That's a 95% reduction in CPU and 86% reduction in memory. And Chaos Mesh actually _did something_ within 5 minutes of being deployed, which is more than Litmus managed in 91 days. To be fair, that's on me. But also, if using a tool requires fighting MongoDB's ARM64 issues just to get started, maybe the tool is the problem.
 
