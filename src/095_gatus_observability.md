@@ -1,12 +1,12 @@
 # Gatus: A Declarative Status Page
 
-## Why Not Uptime Kuma?
+## The Case for a Status Page
 
-I'd been running [Uptime Kuma](https://github.com/louislam/uptime-kuma) for status monitoring. It works. It has a nice UI with pretty charts. You click buttons to add endpoints. You click more buttons to configure alerts. You click even more buttons to change thresholds.
+The cluster has Prometheus, Alertmanager, Grafana, Loki — a full observability stack. But all of that is behind the cluster VPN. If I want to know whether things are healthy from my phone, or let anyone else see, there's no public-facing answer to "is the cluster up?"
 
-That's the problem. It's a clicky web app with all its state locked in a SQLite database. Every endpoint, every alert rule, every threshold — configured through the UI, invisible to Git, impossible to review in a PR. The antithesis of declarative infrastructure. If the pod dies and the PVC is gone, you're rebuilding the entire monitoring config from memory.
+Most status page tools solve this with a web UI: click to add endpoints, click to set thresholds, click to configure alerts. All the state lives in a database, invisible to Git, unreviewable, unreproducible. If the pod dies and the PVC is gone, you're rebuilding everything from memory.
 
-[Gatus](https://github.com/TwiN/gatus) is the opposite. The entire configuration is a YAML file. Endpoints, conditions, alerts, UI settings — all in a ConfigMap. GitOps-native. If I nuke the deployment and redeploy from the repo, I get the exact same status page back. No clicking required, ever.
+[Gatus](https://github.com/TwiN/gatus) takes the opposite approach. The entire configuration is a YAML file. Endpoints, conditions, alerts, UI settings — all in a ConfigMap. GitOps-native. If I nuke the deployment and redeploy from the repo, I get the exact same status page back. No clicking required, ever.
 
 ## The Deployment
 
@@ -46,7 +46,7 @@ endpoints:
 
 14 endpoints total across three groups: `infrastructure` (Kubernetes API), `cluster` (Grafana, Prometheus, Alertmanager, Loki, Tempo, Docker Registry, Step CA, Blackbox Exporter), `apps` (httpbin, ntfy, JupyterLab), and `external` (goldentooth.net, clog.goldentooth.net).
 
-The Kubernetes API endpoint deserves a note. Talos locks down the API server — unauthenticated requests to `/healthz` get a 401, not a 200. Uptime Kuma would've called that "down." Gatus lets you express `[STATUS] == any(200, 401)` as a condition, which is exactly the kind of thing you can do when your health checks are code instead of radio buttons.
+The Kubernetes API endpoint deserves a note. Talos locks down the API server — unauthenticated requests to `/healthz` get a 401, not a 200. Most status tools would call that "down." Gatus lets you express `[STATUS] == any(200, 401)` as a condition, which is exactly the kind of thing you can do when your health checks are code instead of radio buttons.
 
 The ConfigMap is mounted via `subPath`, which means Kubernetes won't auto-update it when the ConfigMap changes. You have to delete the pod to pick up config changes. Mildly annoying, but it prevents mid-flight config reloads from causing weird state.
 
@@ -171,7 +171,7 @@ Four key services. Kubernetes API because it's the beating heart. Prometheus and
 
 ## The Result
 
-The cluster now has a proper declarative status page at `status.goldentooth.net`, backed by a single ConfigMap in Git. It monitors 14 endpoints, pushes metrics to Prometheus, sends failure notifications to my phone via ntfy, and exposes live badges on the GitHub org profile. Uptime Kuma did half of this, but you had to click through a web UI to configure it and pray the PVC survived.
+The cluster now has a proper declarative status page at `status.goldentooth.net`, backed by a single ConfigMap in Git. It monitors 14 endpoints, pushes metrics to Prometheus, sends failure notifications to my phone via ntfy, and exposes live badges on the GitHub org profile.
 
 The full manifest set:
 
