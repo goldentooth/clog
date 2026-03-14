@@ -50,19 +50,7 @@ The Kubernetes API endpoint deserves a note. Talos locks down the API server —
 
 The ConfigMap is mounted via `subPath`, which means Kubernetes won't auto-update it when the ConfigMap changes. You have to delete the pod to pick up config changes. Mildly annoying, but it prevents mid-flight config reloads from causing weird state.
 
-One deployment quirk: the Longhorn PVC is RWO, so I had to set `strategy.type: Recreate` on the Deployment. Otherwise Kubernetes tries to spin up the new pod before killing the old one, the new pod can't mount the volume, and the rollout deadlocks forever. Classic RWO footgun.
-
-## The Auto-Discovery Detour
-
-With the basic status page working, I got ambitious. Gatus should be able to watch the Kubernetes API for annotated Services and automatically create endpoints for them, right? No more manual ConfigMap edits when you deploy a new app.
-
-I deployed RBAC manifests, added annotations to services, wrote a `kubernetes:` config block. Everything looked right. Gatus started up fine.
-
-Nothing happened. No auto-discovered endpoints. No errors. No warnings.
-
-After some digging, I discovered that Gatus doesn't actually have built-in Kubernetes auto-discovery. The `kubernetes:` config block was silently ignored — Gatus doesn't validate unknown top-level keys. The feature I was trying to use simply doesn't exist. There are third-party tools and forks that add it, but upstream Gatus is strictly "you declare your endpoints in the config file."
-
-Cleaned up all the auto-discovery artifacts — removed the RBAC, removed the annotations, removed the dead config block. Back to manual endpoint declaration, which is honestly fine for 14 endpoints. If the cluster grows to 50 monitored services, I'll revisit.
+One deployment quirk: the Longhorn PVC is RWO, so I had to set `strategy.type: Recreate` on the Deployment. Otherwise Kubernetes tries to spin up the new pod before killing the old one, the new pod can't mount the volume, and the rollout deadlocks forever. RWO footgun.
 
 ## Prometheus Metrics
 
