@@ -301,15 +301,15 @@ Classic chicken-and-egg — the webhook service was deleted but K8s was still tr
 
 All 13 PVCs across the cluster are now on SeaweedFS:
 
-| Namespace | PVC | Size | Purpose |
-|-----------|-----|------|---------|
-| garage | data-garage-{0..3} | 100Gi x4 | S3 object storage data |
-| garage | meta-garage-{0..3} | 1Gi x4 | Garage metadata |
-| gatus | gatus-data | 1Gi | Status page data |
-| monitoring | prometheus-...-0 | 16Gi | Prometheus TSDB |
-| monitoring | alertmanager-...-0 | 1Gi | Alertmanager state |
-| monitoring | storage-monitoring-loki-0 | 16Gi | Log storage |
-| monitoring | storage-monitoring-tempo-0 | 10Gi | Trace storage |
+| Namespace  | PVC                        | Size     | Purpose                |
+| ---------- | -------------------------- | -------- | ---------------------- |
+| garage     | data-garage-{0..3}         | 100Gi x4 | S3 object storage data |
+| garage     | meta-garage-{0..3}         | 1Gi x4   | Garage metadata        |
+| gatus      | gatus-data                 | 1Gi      | Status page data       |
+| monitoring | prometheus-...-0           | 16Gi     | Prometheus TSDB        |
+| monitoring | alertmanager-...-0         | 1Gi      | Alertmanager state     |
+| monitoring | storage-monitoring-loki-0  | 16Gi     | Log storage            |
+| monitoring | storage-monitoring-tempo-0 | 10Gi     | Trace storage          |
 
 StorageClasses remaining: `seaweedfs`, `local-path`, `local-path-usb`. No more `longhorn`.
 
