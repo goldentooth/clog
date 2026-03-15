@@ -97,3 +97,4 @@
 - [Gatus: A Declarative Status Page](./095_gatus_observability.md)
 - [Chaos Mesh: Replacing Litmus](./096_chaos_mesh.md)
 - [SeaweedFS: Replacing Longhorn, Third Time's the Charm](./097_seaweedfs_migration.md)
+- [Collateral Damage: Garage, Docker Registry, and SOPS Ergonomics](./098_garage_rebuild_and_sops.md)
