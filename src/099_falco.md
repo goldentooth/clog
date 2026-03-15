@@ -29,7 +29,7 @@ Kernel syscalls → eBPF probe → Falco engine → Rules evaluation
 
 ### Talos + eBPF: A Love Story
 
-Talos Linux has an immutable rootfs. No kernel headers. No `apt install`. No `insmod`. This rules out Falco's traditional kernel module driver entirely — which is fine, because the kernel module approach was always kind of terrifying anyway.
+Talos Linux has an immutable rootfs, which rules out Falco's traditional kernel module driver entirely. This is actually fine, because the kernel module approach was always kind of eh to me anyway.
 
 Falco's `modern_ebpf` driver is the answer. It's compiled directly into the Falco binary, so there's no init container downloading drivers, no kernel header matching dance, no "sorry, we don't have a prebuilt probe for your kernel version." The eBPF probe just loads. Talos ships kernel 6.18.x, which is well above the minimum 5.8 requirement for modern eBPF. Every Pi 4B (Cortex-A72) and Pi 5 (Cortex-A76) handles it fine.
 
@@ -152,7 +152,7 @@ alertmanager:
   endpoint: /api/v2/alerts
 ```
 
-After that: `AlertManager - POST OK (200)`. 
+After that: `AlertManager - POST OK (200)`.
 
 ## What Falco Sees
 
@@ -170,25 +170,11 @@ The test I ran — `kubectl run falco-test --image=busybox --rm -it -- cat /etc/
 
 Falco is now running on 16 of 17 nodes:
 
-| Nodes | Count | Coverage |
-|-------|-------|----------|
-| Pi 4B workers | 9 | All covered |
-| Pi 4B control plane | 3 | All covered |
-| Pi 5 NVMe workers | 4 | All covered |
-| x86 GPU (velaryon) | 1 | Not covered (tainted) |
+| Nodes               | Count | Coverage              |
+| ------------------- | ----- | --------------------- |
+| Pi 4B workers       | 9     | All covered           |
+| Pi 4B control plane | 3     | All covered           |
+| Pi 5 NVMe workers   | 4     | All covered           |
+| x86 GPU (velaryon)  | 1     | Not covered (tainted) |
 
 Velaryon has `platform=x86:NoSchedule` and `gpu=true:NoSchedule` taints. Adding Falco tolerations for it would be trivial, but the GPU node runs JupyterLab and gaming containers — probably the node that *most* deserves security monitoring, actually. Something for the future.
-
-## The Stack So Far
-
-Adding Falco to the running tally:
-
-- **Metrics**: Prometheus + Node Exporter + Blackbox Exporter + Grafana
-- **Logs**: Loki + Alloy
-- **Traces**: Tempo + OpenTelemetry
-- **Status**: Gatus
-- **Chaos**: Chaos Mesh
-- **Security**: Falco + Falcosidekick ← new
-- **Notifications**: ntfy
-
-Runtime security was the obvious gap. Now if someone manages to `exec` into a pod and start doing recon, I'll know about it before they do.

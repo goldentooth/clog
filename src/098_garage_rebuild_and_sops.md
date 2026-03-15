@@ -151,9 +151,3 @@ cluster:
 No more copy-pasting keys from 1Password. The `op read` command handles authentication through the 1Password desktop app or Touch ID, depending on your setup. The `.envrc` is in `.gitignore` so it doesn't get committed.
 
 Updated the SOPS secret with the new Garage credentials, committed, and now Flux won't blow away the working credentials on its next reconciliation.
-
-## Lessons
-
-You'd think "migrate from one storage backend to another" would be a purely storage concern. But stateful applications store their *identity* on those volumes — cluster membership, access credentials, bucket definitions. Replacing the storage isn't just a data problem, it's an identity problem. Every service that bootstraps from its own persistent state needs to be re-bootstrapped.
-
-Also, SOPS key management should have been solved long before I needed to decrypt something urgently at 11 PM. The direnv approach is about 15 minutes of setup and saves the "wait, where's the key again?" dance every single time.
