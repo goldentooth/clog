@@ -241,7 +241,7 @@ Resource comparison:
 | **Litmus**     | 4 (+ MongoDB StatefulSet)    | ~168m      | ~448Mi |
 | **Chaos Mesh** | 5 (1 controller + 4 daemons) | ~9m        | ~61Mi  |
 
-That's a 95% reduction in CPU and 86% reduction in memory. And Chaos Mesh actually _did something_ within 5 minutes of being deployed, which is more than Litmus managed in 91 days. To be fair, that's on me. But also, if using a tool requires fighting MongoDB's ARM64 issues just to get started, maybe the tool is the problem.
+That's a 95% reduction in CPU and 86% reduction in memory.
 
 ## What's Next
 

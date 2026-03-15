@@ -96,3 +96,4 @@
 - [Storage Benchmarks: SD Cards vs. USB Sticks vs. NVMe](./094_storage_benchmarks.md)
 - [Gatus: A Declarative Status Page](./095_gatus_observability.md)
 - [Chaos Mesh: Replacing Litmus](./096_chaos_mesh.md)
+- [SeaweedFS: Replacing Longhorn, Third Time's the Charm](./097_seaweedfs_migration.md)
