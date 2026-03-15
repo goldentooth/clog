@@ -99,3 +99,4 @@
 - [SeaweedFS: Replacing Longhorn, Third Time's the Charm](./097_seaweedfs_migration.md)
 - [Collateral Damage: Garage, Docker Registry, and SOPS Ergonomics](./098_garage_rebuild_and_sops.md)
 - [Falco: Runtime Security](./099_falco.md)
+- [Step-CA: ACME Provisioner and the Inject Mode Migration](./100_step_ca_acme.md)
