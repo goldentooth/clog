@@ -4,7 +4,7 @@
 
 The PKI stack was already working: step-ca issues certs, step-issuer bridges to cert-manager, cert-manager handles the lifecycle. Every certificate in the cluster goes through that pipeline. It's fine. It works.
 
-But ACME is the lingua franca of certificate provisioning. Every reverse proxy, every ingress controller, every piece of software that's ever heard of Let's Encrypt speaks ACME natively. Having an ACME endpoint on the internal CA means services can request certs without needing to know anything about step-issuer or cert-manager. Standard protocol, standard clients. cert-manager itself has an ACME issuer type. It's just a more universal interface.
+But ACME is the _lingua franca_ of certificate provisioning. Every reverse proxy, every ingress controller, every piece of software that's ever heard of Let's Encrypt speaks ACME natively. Having an ACME endpoint on the internal CA means services can request certs without needing to know anything about step-issuer or cert-manager. Standard protocol, standard clients. cert-manager itself has an ACME issuer type. It's just a more universal interface.
 
 The goal: add an ACME provisioner alongside the existing JWK one. Don't break the existing flow. Give services a second, standards-based path to certificates.
 
@@ -162,8 +162,136 @@ Post-migration cleanup:
 - Deleted the unused SOPS secret.yaml and its kustomization reference
 - Removed the SOPS decryption block from the Flux Kustomization (no encrypted files remain)
 
+## Fixing valuesFrom: The Shallow Merge Trap
+
+Remember how I gave up on SOPS-encrypted secrets via `valuesFrom`? Turns out I was an idiot.
+
+Flux's `valuesFrom` merges values in order: valuesFrom entries first, then inline `spec.values` **overwrites**. The merge is shallow at the top level. My Secret contained a YAML structure under `inject.secrets`, but the inline `values` also defined `inject:` (for certificates, config, etc.). The inline `inject:` completely replaced whatever `inject:` came from the Secret. The passwords were merged in, then immediately obliterated.
+
+The fix: `targetPath`. Instead of putting a YAML structure in the Secret and hoping it merges, you put individual values and tell Flux exactly where to inject them:
+
+```yaml
+valuesFrom:
+  - kind: Secret
+    name: step-ca-secrets
+    valuesKey: ca_password
+    targetPath: inject.secrets.ca_password
+  - kind: Secret
+    name: step-ca-secrets
+    valuesKey: provisioner_password
+    targetPath: inject.secrets.provisioner_password
+```
+
+`targetPath` injects a scalar value at an exact dot-notation path _after_ all merging. It can't be clobbered by the inline structure. The Secret has two keys, each holding one base64-encoded password, SOPS-encrypted in git. Done.
+
+One timing wrinkle: on the first deploy, the helm-controller tried to read the Secret before the kustomize-controller had finished decrypting and applying it. The error was `key "type:str]" has no value` — it was reading the raw SOPS ciphertext. A manual `flux reconcile helmrelease` after the Secret existed fixed it, and subsequent reconciliations are fine.
+
+## Integration Testing: The ACME Gauntlet
+
+With the provisioner running, I wanted to prove the whole flow works: cert-manager talks ACME to step-ca, gets a challenge, solves it, gets a cert.
+
+### The ClusterIssuer
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: step-ca-acme
+spec:
+  acme:
+    server: https://step-ca.step-ca.svc.cluster.local/acme/acme/directory
+    caBundle: <base64 root CA>
+    privateKeySecretRef:
+      name: step-ca-acme-account-key
+    solvers:
+      - http01:
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: goldentooth
+                namespace: gateway
+                kind: Gateway
+```
+
+Account registered immediately. Good sign.
+
+### cert-manager Gateway API: A Three-Act Feature Gate Drama
+
+The HTTP-01 solver uses Gateway API's `HTTPRoute` to route challenge traffic through the Cilium gateway. cert-manager needs a feature gate enabled for this.
+
+**Act 1**: Set `featureGates: ExperimentalGatewayAPISupport=true` as a top-level Helm value. Passed as `--feature-gates=...` CLI flag. Controller starts, challenge fails: `gateway api is not enabled`.
+
+**Act 2**: Moved it to the controller configuration object:
+
+```yaml
+config:
+  apiVersion: controller.config.cert-manager.io/v1alpha1
+  kind: ControllerConfiguration
+  featureGates:
+    ExperimentalGatewayAPISupport: true
+```
+
+ConfigMap updated correctly. Controller logs: `"not starting controller as it's disabled" controller="gateway-shim"`. Same error. What.
+
+**Act 3**: Turns out cert-manager 1.15 promoted Gateway API to beta and **deprecated** the `ExperimentalGatewayAPISupport` feature gate. It's a no-op. Accepts the value, parses it fine, does absolutely nothing with it. The actual setting in 1.16 is:
+
+```yaml
+config:
+  apiVersion: controller.config.cert-manager.io/v1alpha1
+  kind: ControllerConfiguration
+  enableGatewayAPI: true
+```
+
+A completely different field name, at a completely different level in the config structure, with zero deprecation warnings in the logs. Classic.
+
+After that, `gateway-shim` showed up in the enabled controllers list and the solver started creating HTTPRoutes.
+
+### DNS Propagation: The 24-Hour Brick Wall
+
+The HTTP-01 flow works like this: cert-manager creates a solver pod, a service, and an HTTPRoute. The ACME server (step-ca) makes an HTTP request to `http://<domain>/.well-known/acme-challenge/<token>` and the solver pod responds with the proof. Simple.
+
+Except the domain needs to resolve. For `acme-test.goldentooth.net`, external-dns saw the new HTTPRoute and created an A record in Route 53 pointing to the gateway IP. Public DNS (8.8.8.8, 1.1.1.1) had it within seconds. But inside the cluster, the domain didn't resolve.
+
+The DNS chain: pod → CoreDNS → Talos node resolver (127.0.0.53) → router (10.4.0.1) → upstream DNS. The router had cached an NXDOMAIN response from before the record existed. The Route 53 SOA had a negative cache TTL of **86400 seconds**. Twenty-four hours. The router was going to insist this domain doesn't exist for a full day.
+
+I reduced the SOA negative TTL to 300 seconds for the future, but the existing cached NXDOMAIN was already baked in. The fix that actually unblocked things: changing CoreDNS to forward directly to `8.8.8.8` and `1.1.1.1` instead of `/etc/resolv.conf`. This also fixed a latent bug where new CoreDNS pods would crash on startup due to a loop — `/etc/resolv.conf` on Talos points to `127.0.0.53`, which is Talos's own DNS cache, which forwards to the router. When CoreDNS restarts, the loop detection plugin sees `127.0.0.53 → CoreDNS → 127.0.0.53` and kills itself. The old pods had been running since before the loop existed and were fine. New pods: instant `CrashLoopBackOff`.
+
+Fun times.
+
+### The Cilium Hairpin: 503 From the Inside
+
+With DNS working, cert-manager's self-check still got 503. Manual testing from other pods returned 200. The difference: cert-manager was scheduled on `manderly`, which is also where Cilium's envoy proxy for the gateway runs.
+
+When a pod on the same node as the gateway's envoy hits the gateway's LoadBalancer IP (`10.4.11.1`), the traffic needs to "hairpin" — leave the pod, hit the LB VIP, route back to the envoy process on the same node. This hairpin path is broken in Cilium — envoy returns 503 instead of proxying to the backend.
+
+From any other node, the request goes across the network normally and works fine. I deleted the cert-manager pod, it rescheduled on `norcross`, and the self-check immediately started returning 200.
+
+This is a known class of Cilium issue with LoadBalancer service traffic originating from the LB's host node. It only affects in-cluster clients hitting the external VIP from the "wrong" node. External clients are fine. Something to investigate separately — it could affect any service doing gateway requests from that specific node.
+
+### Success
+
+After deleting the stale challenge and letting cert-manager retry on its new node:
+
+```
+NAME                    READY   SECRET                 ISSUER         STATUS
+acme-test-certificate   True    acme-test-tls-secret   step-ca-acme   Certificate is up to date and has not expired
+```
+
+```
+Issuer: O=Goldentooth CA, CN=Goldentooth CA Intermediate CA
+Not Before: Mar 16 15:45:28 2026 GMT
+Not After : Mar 17 15:46:28 2026 GMT
+Subject: CN=acme-test.goldentooth.net
+    DNS:acme-test.goldentooth.net
+```
+
+Issued by the Goldentooth CA Intermediate, 24-hour lifetime, via ACME. The full chain worked: cert-manager registered an ACME account, requested a certificate, created an HTTP-01 solver pod with a Gateway API HTTPRoute, external-dns created the DNS record, step-ca verified the challenge, and the certificate was issued.
+
+All three test certificates now live in the cluster:
+- `test-certificate` — JWK provisioner via step-issuer (existing)
+- `canary-certificate` — JWK provisioner via step-issuer (existing)
+- `acme-test-certificate` — ACME provisioner via cert-manager ClusterIssuer (new)
+
 ## What's Left
 
-- **SOPS for passwords**: The base64-encoded CA and provisioner passwords are still inline in the HelmRelease. Need to find a working approach for SOPS protection that doesn't involve the broken `valuesFrom` mechanism. Maybe encrypt the entire release.yaml? Or use a different secret injection pattern.
-- **ACME integration testing**: The provisioner is live, but I haven't actually tested an end-to-end ACME flow yet. Need to set up a cert-manager ACME Issuer pointing at the internal CA, or use `certbot` with the `--server` flag to hit `https://step-ca.goldentooth.net/acme/acme/directory`.
-- **DNS-01 challenge support**: The ACME provisioner supports it, and we have a Route 53 connection, but the actual DNS solver configuration in cert-manager is a separate piece of work.
+- **Cilium hairpin issue**: The 503-from-same-node problem needs investigation. It's not ACME-specific — any in-cluster client hitting the gateway LB from the envoy's node will see the same thing. Might need a Cilium config change or a `externalTrafficPolicy` tweak.
+- **DNS-01 challenge support**: HTTP-01 works but has the DNS propagation dependency. DNS-01 via Route 53 would be more reliable for programmatic cert issuance, and the infrastructure (external-dns, AWS credentials) already exists.
