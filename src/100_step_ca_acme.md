@@ -105,9 +105,7 @@ Nothing happened. The passwords were empty. The Helm values showed the inject.se
 
 I tried: restructuring the Secret key format, different nesting levels, different YAML structures, placeholder values in the HelmRelease for the override to replace. None of it worked. The valuesFrom merge just... didn't merge.
 
-After way too many commits trying to make this work, I gave up and inlined everything. The passwords are base64-encoded in the HelmRelease, the encrypted intermediate key is right there in the YAML. Is it ideal? No. But the intermediate key is already AES-256-CBC encrypted with the CA password, so it's not like it's sitting there in plaintext.
-
-The base64 passwords though... yeah. That's on the list.
+After way too many commits trying to make this work, I gave up and inlined everything temporarily. Moved on to get the migration working, then came back and [figured out what went wrong](#fixing-valuesfrom-the-shallow-merge-trap).
 
 ### Problem 3: The Double Wildcard
 
@@ -159,8 +157,8 @@ All existing certificates still `Ready: True`. The canary certificate renewed on
 
 Post-migration cleanup:
 - Removed `force: true` from the HelmRelease (no longer needed)
-- Deleted the unused SOPS secret.yaml and its kustomization reference
-- Removed the SOPS decryption block from the Flux Kustomization (no encrypted files remain)
+- Passwords moved to SOPS-encrypted Secret with `valuesFrom` + `targetPath` (see below)
+- Only the AES-256-CBC encrypted intermediate key remains inline in the HelmRelease
 
 ## Fixing valuesFrom: The Shallow Merge Trap
 
@@ -265,7 +263,18 @@ When a pod on the same node as the gateway's envoy hits the gateway's LoadBalanc
 
 From any other node, the request goes across the network normally and works fine. I deleted the cert-manager pod, it rescheduled on `norcross`, and the self-check immediately started returning 200.
 
-This is a known class of Cilium issue with LoadBalancer service traffic originating from the LB's host node. It only affects in-cluster clients hitting the external VIP from the "wrong" node. External clients are fine. Something to investigate separately — it could affect any service doing gateway requests from that specific node.
+This is a known class of Cilium issue with LoadBalancer service traffic originating from the LB's host node. It only affects in-cluster clients hitting the external VIP from the "wrong" node. External clients are fine.
+
+The culprit turned out to be Cilium's socket-level load balancer (`socketLB`). With `kubeProxyReplacement: true`, Cilium hooks into the socket layer via eBPF to intercept connect() calls and translate service IPs directly — bypassing the normal packet path entirely. When a pod on manderly connected to `10.4.11.1`, the eBPF program tried to short-circuit the connection to the envoy process on the same node, but got the return path wrong. The fix:
+
+```yaml
+socketLB:
+  hostNamespaceOnly: true
+```
+
+This restricts the socket-level LB trick to the host network namespace only. Pods still go through the normal datapath — VXLAN tunnel, proper NAT, envoy receives the traffic like any other packet. Host-namespace processes (kubelet, node-level services) still get the fast path. One line, problem gone.
+
+Interestingly, most of the Cilium GitHub issues about this (#31653, #33243, #35424) focus on `bpf.masquerade` and native routing mode, neither of which apply here — the cluster runs VXLAN tunnel mode. The socket-level LB is a separate interception point that can cause the same symptom through a completely different mechanism.
 
 ### Success
 
@@ -293,5 +302,4 @@ All three test certificates now live in the cluster:
 
 ## What's Left
 
-- **Cilium hairpin issue**: The 503-from-same-node problem needs investigation. It's not ACME-specific — any in-cluster client hitting the gateway LB from the envoy's node will see the same thing. Might need a Cilium config change or a `externalTrafficPolicy` tweak.
 - **DNS-01 challenge support**: HTTP-01 works but has the DNS propagation dependency. DNS-01 via Route 53 would be more reliable for programmatic cert issuance, and the infrastructure (external-dns, AWS credentials) already exists.
