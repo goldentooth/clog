@@ -10,12 +10,6 @@ The plan: deploy it, poke at it, see how fast it goes on ARM hardware. No grand 
 
 ## The Deployment
 
-### Wait, Don't I Already Have Logging?
-
-Funny story. I originally had "Fluentd" on the TODO list. Then I looked at what was already running and realized I had Alloy → Loki → Grafana doing the exact same thing Fluentd would do. The TODO item was from before I set up the Alloy pipeline back in entry #086. So that one just got a line through it.
-
-NATS, on the other hand, fills a gap nothing else covers. There's no messaging layer on the bramble. Everything communicates via HTTP APIs or not at all.
-
 ### The Setup
 
 Standard four-file Flux structure:
@@ -139,8 +133,113 @@ For context: these numbers are from *inside* the nats-box pod, talking to the NA
 
 The Prometheus exporter is working — metrics are available on `:7777/metrics` from each NATS pod. The PodMonitor should get them into Prometheus automatically once the next scrape cycle hits. Standard NATS metrics: connection counts, message rates, byte throughput, slow consumers, route stats for the cluster mesh.
 
+## JetStream: Adding Persistence
+
+### The Config Change
+
+Enabling JetStream is a one-section values change:
+
+```yaml
+config:
+  jetstream:
+    enabled: true
+    fileStore:
+      enabled: true
+      dir: /data
+      pvc:
+        enabled: true
+        size: 5Gi
+        storageClassName: seaweedfs
+```
+
+5Gi per node, 15Gi total, backed by SeaweedFS. Should be plenty for experimenting.
+
+### The StatefulSet Immutability Wall
+
+Pushed the change. Flux tried to upgrade. Helm tried to patch the StatefulSet. Kubernetes said no.
+
+```
+error updating the resource "nats-nats":
+  cannot patch "nats-nats" with kind StatefulSet: StatefulSet.apps "nats-nats"
+  is invalid: spec: Forbidden: updates to statefulset spec for fields other than
+  'replicas', 'ordinals', 'template', 'updateStrategy', 'revisionHistoryLimit',
+  'persistentVolumeClaimRetentionPolicy' and 'minReadySeconds' are forbidden
+```
+
+Adding `volumeClaimTemplates` to an existing StatefulSet is an immutable field change. Kubernetes flat-out refuses it. Helm tried three times, rolled back three times, and the HelmRelease ended up in a rollback loop with a poisoned release history.
+
+The fix was a full nuke-and-pave:
+
+1. Delete the StatefulSet with `--cascade=orphan` (keeps pods running, but the rollback recreated it anyway)
+2. Delete all Helm release secrets from `flux-system` namespace (`sh.helm.release.v1.nats-nats.v5` through `v9`)
+3. Delete all orphaned resources in the `nats` namespace — pods, deployment, configmap, services, PDB, PodMonitor, secrets
+4. Let Flux do a clean install from scratch
+
+```
+$ kubectl get pods -n nats
+NAME                             READY   STATUS    RESTARTS   AGE
+nats-nats-0                      3/3     Running   0          34s
+nats-nats-1                      3/3     Running   0          34s
+nats-nats-2                      3/3     Running   0          34s
+nats-nats-box-778456b65f-ggsv9   1/1     Running   0          35s
+
+$ kubectl get pvc -n nats
+NAME                       STATUS   VOLUME         CAPACITY   STORAGECLASS   AGE
+nats-nats-js-nats-nats-0   Bound    pvc-4baac...   5Gi        seaweedfs      34s
+nats-nats-js-nats-nats-1   Bound    pvc-b37bb...   5Gi        seaweedfs      34s
+nats-nats-js-nats-nats-2   Bound    pvc-d1f8e...   5Gi        seaweedfs      34s
+```
+
+Three PVCs, all bound to SeaweedFS. JetStream is live.
+
+### Playing With Streams
+
+Created a test stream with R3 replication across all three nodes:
+
+```
+$ nats stream add EVENTS --subjects "events.>" --retention limits \
+    --max-age 1h --storage file --replicas 3
+
+Stream EVENTS was created
+  Subjects: events.>
+  Replicas: 3
+  Storage: File
+  Cluster Group: S-R3F-RKzOy1A8
+    Leader: nats-nats-2
+    Replica: nats-nats-0, current
+    Replica: nats-nats-1, current
+```
+
+Published 5 messages, created a pull consumer, replayed them all:
+
+```
+$ nats consumer next EVENTS replay --count 5
+[01:50:48] subj: events.test / cons seq: 1 / str seq: 1 / pending: 4
+message number 1 from the bramble
+[01:50:48] subj: events.test / cons seq: 2 / str seq: 2 / pending: 3
+message number 2 from the bramble
+...
+```
+
+Messages go in, messages come back out. In order. With sequence numbers. Even after the publisher is long gone. This is the thing core pub/sub can't do.
+
+### JetStream Benchmarks
+
+Here's where it gets interesting. Same 4-client, 128-byte setup, but now with persistence:
+
+| Mode | Throughput | Avg Latency |
+|------|-----------|-------------|
+| Core pub/sub | 411,094 msgs/sec | 8.5µs |
+| JetStream async R1 | 4,144 msgs/sec | 951µs |
+| JetStream async R3 | 1,007 msgs/sec | 3.9ms |
+| JetStream sync R3 | 401 msgs/sec | 9.5ms |
+
+That's a thousand-to-one ratio between core pub/sub and JetStream sync R3. Not a typo. Core NATS shuffles bytes in memory. JetStream sync R3 writes to disk on the leader, replicates to two followers via Raft consensus, waits for quorum acknowledgment from the SeaweedFS-backed PVCs, then responds. Every single message does a full consensus round-trip across the cluster network.
+
+The async numbers are more forgiving — 1K msgs/sec at R3 is totally usable for event streams, audit logs, sensor data. You're batching the acks and letting the client pipeline ahead while the cluster catches up. R1 gets you 4K msgs/sec by skipping replication entirely, but then you've got a single point of failure, which kind of defeats the purpose.
+
+For this cluster, R3 async is probably the sweet spot. Durable, replicated, and fast enough for anything I'd realistically run on a bramble.
+
 ## What's Next
 
-JetStream is the obvious next step — persistent streams with replay, consumer groups, exactly-once delivery. That'll need SeaweedFS-backed PVCs, which adds complexity but also makes NATS useful for things that can't afford to lose messages.
-
-Beyond that, actually *building something* on top of NATS would be nice. A little event-driven app, maybe some sensor data pipeline across the bramble. Having a message bus is cool. Having a message bus with nothing to say is... an infrastructure hobby, which I suppose is what this entire project is.
+Actually *building something* on top of NATS would be nice. A little event-driven app, maybe some sensor data pipeline across the bramble. Having a message bus with durable streams and nothing to stream is a very on-brand infrastructure hobby.
