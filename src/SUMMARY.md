@@ -101,3 +101,4 @@
 - [Falco: Runtime Security](./099_falco.md)
 - [Step-CA: ACME Provisioner and the Inject Mode Migration](./100_step_ca_acme.md)
 - [NATS: Pub/Sub on the Bramble](./101_nats.md)
+- [Forgejo: CI/CD That Doesn't Phone Home](./102_forgejo.md)
