@@ -103,3 +103,4 @@
 - [NATS: Pub/Sub on the Bramble](./101_nats.md)
 - [Forgejo: CI/CD That Doesn't Phone Home](./102_forgejo.md)
 - [Flux Image Automation: Push to Deploy](./103_flux_image_automation.md)
+- [Stakater Reloader: Never Restart a Pod Again](./104_stakater_reloader.md)
