@@ -105,3 +105,6 @@
 - [Flux Image Automation: Push to Deploy](./103_flux_image_automation.md)
 - [Stakater Reloader: Never Restart a Pod Again](./104_stakater_reloader.md)
 - [Exposing the MCP Server: Gateway, TLS, and the 14-Minute Loop](./105_mcp_gateway_pipeline_test.md)
+- [MCP Server: From Static JSON to Cluster Eyes](./106_mcp_cluster_tools.md)
+- [Flux Status and ntfy Notifications: The MCP Server Learns to Read GitOps](./107_flux_ntfy_tools.md)
+- [Netboot Debugging: Stale Assets, Missing Memory, and the IPMI Reboot Hang](./108_netboot_debugging.md)
