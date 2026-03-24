@@ -67,29 +67,31 @@ erenford    2912972Ki   (~2.9 GB)
 
 This is an 8GB Pi 4B. Where did the other 5GB go?
 
-The answer is EDK2 UEFI firmware. The `pftf/RPi4` UEFI firmware has a setting called `RamMoreThan3GB` that defaults to **disabled**. In ACPI mode this is a DMA addressing concern, but even in DeviceTree mode (which we use — `SystemTableMode=2`), the default sticks. The firmware tells the kernel "you have 3GB" and the kernel believes it.
+The answer is EDK2 UEFI firmware. The `pftf/RPi4` UEFI firmware has a setting called `RamLimitTo3GB` that defaults to **enabled**. In ACPI mode this is a DMA addressing concern, but even in DeviceTree mode (which we use — `SystemTableMode=2`), the default sticks. The firmware tells the kernel "you have 3GB" and the kernel believes it.
+
+> **Correction**: I originally wrote `RamMoreThan3GB` here — that's a hardware capability flag set by ConfigDxe at runtime, not a user-configurable NVRAM variable. The actual policy variable is `RamLimitTo3GB`. See [entry 109](./109_ramlimitto3gb.md) for the full story.
 
 The U-Boot nodes don't have this problem. U-Boot passes through the VideoCore-prepared device tree unmodified, which includes the full memory map with the high region above `0x100000000`. EDK2 constructs its own memory map and applies its own policy.
 
-I already had a binary NVRAM patch in the netboot script for `SystemTableMode=2`. Adding `RamMoreThan3GB=1` was the same pattern — same GUID, same authenticated variable format, just the next slot in the variable store at offset `0x3B00C4`:
+I already had a binary NVRAM patch in the netboot script for `SystemTableMode=2`. Adding a memory patch was the same pattern — same GUID, same authenticated variable format, just the next slot in the variable store at offset `0x3B00C4`. I initially patched `RamMoreThan3GB=1`, which turned out to be wrong (see [entry 109](./109_ramlimitto3gb.md)). The corrected patch sets `RamLimitTo3GB=0`:
 
 ```sh
 NVRAM_OFF2=$((0x3B00C4))
 printf '\xaa\x55\x3f\x00' > /tmp/nvram_var2.bin        # StartId + State + Reserved
 printf '\x07\x00\x00\x00' >> /tmp/nvram_var2.bin       # Attributes: NV|BS|RT
 # ... (MonotonicCount, TimeStamp, PubKeyIndex — all zero)
-printf '\x1e\x00\x00\x00' >> /tmp/nvram_var2.bin       # NameSize (30 bytes)
+printf '\x1c\x00\x00\x00' >> /tmp/nvram_var2.bin       # NameSize (28 bytes)
 printf '\x04\x00\x00\x00' >> /tmp/nvram_var2.bin       # DataSize (4 bytes)
 printf '\x58\xc2\x7c\xcd\xdb\x31\xe6\x22' >> /tmp/nvram_var2.bin  # GUID part 1
 printf '\x9f\x22\x63\xb0\xb8\xee\xd6\xb5' >> /tmp/nvram_var2.bin  # GUID part 2
-printf 'R\x00a\x00m\x00M\x00o\x00r\x00e\x00' >> /tmp/nvram_var2.bin
-printf 'T\x00h\x00a\x00n\x003\x00G\x00B\x00\x00\x00' >> /tmp/nvram_var2.bin
-printf '\x01\x00\x00\x00' >> /tmp/nvram_var2.bin       # Value=1 (enable >3GB)
+printf 'R\x00a\x00m\x00L\x00i\x00m\x00i\x00t\x00' >> /tmp/nvram_var2.bin
+printf 'T\x00o\x003\x00G\x00B\x00\x00\x00' >> /tmp/nvram_var2.bin
+printf '\x00\x00\x00\x00' >> /tmp/nvram_var2.bin       # Value=0 (disable limit)
 dd if=/tmp/nvram_var2.bin of="${SHARED}/RPI_EFI.fd" \
    bs=1 seek=${NVRAM_OFF2} conv=notrunc status=none
 ```
 
-This fixes it for **netbooted** nodes — next time a Pi 4B PXE boots, the patched `RPI_EFI.fd` will expose all 8GB. But dalt and erenford already installed to disk from the old firmware. Their on-disk `RPI_EFI.fd` still has `RamMoreThan3GB=0`, and Talos doesn't manage the EFI system partition firmware files. They'll stay at 3GB until they're re-imaged via netboot or someone manually patches the firmware on the SD card.
+This fixes it for **netbooted** nodes — next time a Pi 4B PXE boots, the patched `RPI_EFI.fd` will expose all 8GB. But dalt and erenford already installed to disk from the old firmware. Their on-disk `RPI_EFI.fd` still has the default `RamLimitTo3GB=1`, and Talos doesn't manage the EFI system partition firmware files. They'll stay at 3GB until they're re-imaged via netboot or someone manually patches the firmware on the SD card.
 
 For what it's worth, karstark and lipps also showed reduced memory (~3.8GB each), but that turned out to be hardware — they're from a different batch and are genuinely 4GB boards. Different years, different specs.
 

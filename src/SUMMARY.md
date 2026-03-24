@@ -108,3 +108,4 @@
 - [MCP Server: From Static JSON to Cluster Eyes](./106_mcp_cluster_tools.md)
 - [Flux Status and ntfy Notifications: The MCP Server Learns to Read GitOps](./107_flux_ntfy_tools.md)
 - [Netboot Debugging: Stale Assets, Missing Memory, and the IPMI Reboot Hang](./108_netboot_debugging.md)
+- [The Wrong Variable: RamLimitTo3GB](./109_ramlimitto3gb.md)
