@@ -158,6 +158,42 @@ For future me, the full recovery chain when a SeaweedFS FUSE mount goes stale:
 
 Steps 1-4 must all happen. Skipping any one of them leaves you stuck in a different failure mode. I learned this the hard way, one step at a time.
 
+## Collateral Damage: Forgejo
+
+With the monitoring stack back online, Prometheus re-discovered what it could see. Among the new alerts: Forgejo replica mismatch. The deployment showed 1 desired, 0 ready, 1 unavailable — even though the pod was technically Running.
+
+Pulled Forgejo's logs:
+
+```
+SQLite3 file exists check failed with error:
+  stat /data/forgejo.db: transport endpoint is not connected
+```
+
+Same disease. Forgejo on oakheart had a SeaweedFS PVC for its SQLite database, and the FUSE mount was dead. The health check was returning 424 (Failed Dependency) every 10 seconds, so the readiness probe kept the pod in a permanent not-ready state.
+
+This one needed the full playbook too. Just deleting the pod wasn't enough — the new pod landed on oakheart again and the kubelet reused the same stale pod volume path. `CreateContainerError` before the init container could even start, because the container runtime couldn't `stat` the mount point.
+
+Ran the five-step recovery: unmount both the globalmount and the pod bind mount, nuke the CSI volume directory, delete the VolumeAttachment, restart the CSI node pod on oakheart, then delete the Forgejo pod. The new pod came up clean, init containers ran through, and Forgejo was back with its SQLite database intact.
+
+## The MetalLB Ghost
+
+One more alert was lurking: MetalLB speaker DaemonSet "misscheduled" and "rollout stuck." This one had been around since before the FUSE incident — it predated the Prometheus data loss and re-fired from fresh scrapes.
+
+The numbers: `desiredNumberScheduled: 15`, `currentNumberScheduled: 15`, `numberMisscheduled: 1`. But 16 speaker pods were running, one on every non-velaryon node. The DaemonSet controller thought only 15 nodes were eligible.
+
+Checked everything:
+- All 16 non-velaryon nodes have `kubernetes.io/os: linux` (nodeSelector match)
+- Only taints are `control-plane:NoSchedule` on allyrion/bettley/cargyll (tolerated), and `platform=x86:NoSchedule` + `gpu=true:NoSchedule` on velaryon (correctly excluded)
+- No nodes unschedulable, no unusual conditions, no resource constraints
+- All pods on the same controller-revision-hash — no stale generation leftovers
+- No affinity rules, no pod disruption budgets
+
+By every metric I could check, 16 nodes were eligible. The DaemonSet controller disagreed.
+
+The fix was anticlimactic: `kubectl rollout restart daemonset`. This bumps the pod template annotation, forcing the controller to re-evaluate node eligibility from scratch. After the restart, `desiredNumberScheduled` jumped to 16, `numberMisscheduled` dropped to 0, and the rollout completed across all 16 nodes.
+
+The controller's eligibility cache had gone stale at some unknown point — probably during a node taint change or temporary condition — and never recalculated because the DaemonSet spec hadn't changed. It sat there for who knows how long, insisting that 15 was the right number while 16 pods ran happily.
+
 ## Lessons
 
 The `OnDelete` DaemonSet strategy is a trap that teaches you a lesson every time you interact with it. It exists for a good reason — you don't want FUSE mounts disappearing under active workloads — but it creates a coordination problem: you need to restart consumers immediately after restarting the mount daemon. There's no grace period. The moment the old mount pod dies, every volume it was serving becomes an `ENOTCONN` time bomb.
@@ -165,3 +201,5 @@ The `OnDelete` DaemonSet strategy is a trap that teaches you a lesson every time
 The correct procedure for a SeaweedFS CSI rolling restart: for each node, delete the mount pod, wait for the new one, then immediately bounce every pod on that node that uses a SeaweedFS volume. Not "later." Not "after all mount pods are updated." *Immediately*, per-node, in lockstep. I did the mount pods first and the consumers never, which is the one ordering that guarantees maximum carnage.
 
 Also: the kubelet's CSI staging cache is invisible and persistent. If you clean up a CSI volume's globalmount directory, the kubelet still thinks the volume is staged and will skip NodeStageVolume on the next mount attempt. The only way to clear that cache is to restart the CSI node pod, which forces driver re-registration. This is not documented anywhere I could find.
+
+And: DaemonSet controllers can cache stale node eligibility counts indefinitely. If `numberMisscheduled` is non-zero but you can't find a reason any node should be ineligible, a `rollout restart` forces a full recalculation. It's the DaemonSet equivalent of "have you tried turning it off and on again."
