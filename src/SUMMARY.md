@@ -110,3 +110,4 @@
 - [Netboot Debugging: Stale Assets, Missing Memory, and the IPMI Reboot Hang](./108_netboot_debugging.md)
 - [The Wrong Variable: RamLimitTo3GB](./109_ramlimitto3gb.md)
 - [Falco: The Closed-Channel Spin Loop](./110_falco_spin_loop.md)
+- [SeaweedFS CSI: The FUSE Mount Massacre](./111_seaweedfs_csi_fuse_carnage.md)
