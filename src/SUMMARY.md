@@ -112,3 +112,4 @@
 - [Falco: The Closed-Channel Spin Loop](./110_falco_spin_loop.md)
 - [SeaweedFS CSI: The FUSE Mount Massacre](./111_seaweedfs_csi_fuse_carnage.md)
 - [Bluesky PDS: Giving the Theatre Characters Social Media Accounts](./112_pds_atproto.md)
+- [Theatre Goes Live: From Provisioning to First Post](./113_theatre_goes_live.md)
