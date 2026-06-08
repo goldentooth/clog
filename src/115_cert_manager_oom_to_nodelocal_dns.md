@@ -150,3 +150,19 @@ broken_healthchecks:  0  (was ~5,150 per pod)
 The `20/20` is the one that matters — that's the exact test that returned `2/10` at the start.
 
 So: a registry scan failure was a cert-manager OOM was an unbounded-CertificateRequest-backlog, and separately a months-dead ACME cert was intermittent DNS was CoreDNS-upstream-overload was `ndots:5`-amplification-plus-no-node-cache. Every yak had a yak under it. The one consolation is that it really was, in the end, always DNS — I'd hate to break the streak.
+
+## Postscript: Making It Durable (Without Shooting DNS in the Foot)
+
+The Corefile change and the replica/resource bumps were live edits, because Talos manages CoreDNS but only applies it *once* at bootstrap — it never reconciles, which is why the March `8.8.8.8` edit had survived. That's fine until a node rebuild re-renders the bootstrap manifests and quietly reverts everything. So I wanted CoreDNS in gitops.
+
+The obvious move is `cluster.coreDNS.disabled: true` + a self-managed CoreDNS in Flux. I authored the whole thing — faithful copies of the Deployment/Service/ConfigMap/RBAC, `kube-dns` pinned to `10.96.0.10`, verified a zero-diff adoption — and then, right before flipping the Talos switch, actually thought about the rebuild path:
+
+- Talos boots, **no CoreDNS** (I just disabled it).
+- Flux source-controller (`dnsPolicy: ClusterFirst`) tries to resolve `github.com` to clone the repo.
+- No CoreDNS means no resolution means no clone means no CoreDNS deployed.
+
+I'd have built a cluster that can't bootstrap its own DNS. The exact opposite of "durable through a rebuild." Talos's built-in CoreDNS isn't a wart to remove — it's the thing that breaks that chicken-and-egg.
+
+So: **adopt the objects into Flux, leave `cluster.coreDNS` enabled.** Flux now owns and drift-corrects the Deployment/ConfigMap/Service (so the Corefile, the 3 replicas, and the 256Mi limit are durable), while Talos still bootstraps a plain CoreDNS on a cold rebuild and Flux reconciles it to spec a minute later. Best of both, and nobody has to hand-resolve `github.com` from a recovery shell at 2am. The `disabled: true` switch is right there if I ever decouple Flux's DNS first — but not today.
+
+Adopting was clean precisely because I replicated the running objects exactly: `kubectl diff` showed nothing but annotation noise, and after `git push` the `managedFields` just gained `kustomize-controller` alongside the now-dormant `talos`. The kube-dns ClusterIP never moved, no pod restarted, resolution stayed 10/10 throughout. The least dramatic step in the entire saga, which after the preceding 3,000 words felt almost rude.
