@@ -114,3 +114,4 @@
 - [Bluesky PDS: Giving the Theatre Characters Social Media Accounts](./112_pds_atproto.md)
 - [Theatre Goes Live: From Provisioning to First Post](./113_theatre_goes_live.md)
 - [Private IPs in Public DNS: wiz6 and Watching From Outside](./114_wiz6_public_dns_and_external_monitoring.md)
+- [It's Always DNS, Eventually: From an Expired Cert to NodeLocal DNS](./115_cert_manager_oom_to_nodelocal_dns.md)
